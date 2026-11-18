@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexora FX</title>
+<title>NEXORA FX Trading</title>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
@@ -20,90 +22,117 @@ body {
 
 header {
     background: #111827;
-    padding: 20px;
+    padding: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: bold;
     color: #00d4aa;
+    font-size: 23px;
+    font-weight: bold;
 }
 
-nav a {
+header a {
     color: white;
     text-decoration: none;
-    margin-left: 15px;
-}
-
-.hero {
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.hero h1 {
-    font-size: 36px;
-    margin-bottom: 15px;
-}
-
-.hero span {
-    color: #00d4aa;
-}
-
-.hero p {
-    color: #a0aec0;
-    margin-bottom: 25px;
-}
-
-.button {
-    display: inline-block;
-    background: #00d4aa;
-    color: #07111e;
-    padding: 14px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
+    margin-left: 12px;
 }
 
 .container {
+    padding: 18px;
+}
+
+.card {
+    background: #111827;
     padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 18px;
 }
 
 .balance {
-    background: #111827;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.balance h2 {
     color: #00d4aa;
+    font-size: 30px;
     margin-top: 10px;
 }
 
-.market {
-    background: #111827;
-    padding: 18px;
+.label {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+select, input {
+    width: 100%;
+    background: #1f2937;
+    color: white;
+    padding: 14px;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+#chart {
+    height: 400px;
+    width: 100%;
     border-radius: 10px;
-    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+button {
+    width: 50%;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.buy {
+    background: #00b894;
+}
+
+.sell {
+    background: #e74c3c;
+}
+
+.market {
     display: flex;
     justify-content: space-between;
+    padding: 15px;
+    background: #1f2937;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
-.green {
-    color: #00d4aa;
-}
-
-.red {
-    color: #ff5c70;
+.trade {
+    background: #1f2937;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 footer {
     text-align: center;
-    padding: 30px;
     color: #6b7280;
+    padding: 25px;
+}
+
+.small {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 10px;
 }
 </style>
 </head>
@@ -112,78 +141,294 @@ footer {
 
 <header>
     <div class="logo">NEXORA FX</div>
+
     <nav>
-        <a href="#home">Home</a>
-        <a href="#markets">Markets</a>
+        <a href="#dashboard">Home</a>
+        <a href="#trading">Trade</a>
     </nav>
 </header>
 
-<section class="hero" id="home">
-    <h1>Trade <span>Smarter</span></h1>
-    <p>Your gateway to the global Forex market.</p>
-    <a href="#markets" class="button">Explore Markets</a>
+<div class="container">
+
+<section class="card" id="dashboard">
+    <p class="label">DEMO ACCOUNT BALANCE</p>
+
+    <h1 class="balance" id="balance">$10,000.00</h1>
+
+    <p class="label">Virtual funds for practice trading</p>
 </section>
 
-<section class="container">
-
-    <div class="balance">
-        <p>Demo Account Balance</p>
-        <h2>$10,000.00</h2>
-        <p>Practice trading with virtual funds</p>
-    </div>
-
-    <h2 id="markets" style="margin-bottom:20px;">Market Overview</h2>
+<section class="card">
+    <h2>Markets</h2>
 
     <div class="market">
-        <div>
-            <strong>EUR/USD</strong>
-            <p>Euro / US Dollar</p>
-        </div>
-        <div>
-            <strong>1.08425</strong>
-            <p class="green">+0.25%</p>
-        </div>
+        <span>EUR/USD</span>
+        <span>1.08425</span>
     </div>
 
     <div class="market">
-        <div>
-            <strong>GBP/USD</strong>
-            <p>British Pound / US Dollar</p>
-        </div>
-        <div>
-            <strong>1.27150</strong>
-            <p class="green">+0.18%</p>
-        </div>
+        <span>GBP/USD</span>
+        <span>1.27150</span>
     </div>
 
     <div class="market">
-        <div>
-            <strong>USD/JPY</strong>
-            <p>US Dollar / Japanese Yen</p>
-        </div>
-        <div>
-            <strong>149.825</strong>
-            <p class="red">-0.12%</p>
-        </div>
+        <span>USD/JPY</span>
+        <span>149.825</span>
     </div>
 
     <div class="market">
-        <div>
-            <strong>XAU/USD</strong>
-            <p>Gold / US Dollar</p>
-        </div>
-        <div>
-            <strong>2,650.50</strong>
-            <p class="green">+0.42%</p>
-        </div>
+        <span>XAU/USD</span>
+        <span>2650.50</span>
+    </div>
+</section>
+
+<section class="card" id="trading">
+
+    <h2>Trading Terminal</h2>
+
+    <label>Select Market</label>
+
+    <select id="symbol" onchange="changeChart()">
+        <option value="FX:EURUSD">EUR/USD</option>
+        <option value="FX:GBPUSD">GBP/USD</option>
+        <option value="FX:USDJPY">USD/JPY</option>
+        <option value="OANDA:XAUUSD">Gold (XAU/USD)</option>
+    </select>
+
+    <div id="chart"></div>
+
+    <h3 style="margin-top:20px;">Demo Trade</h3>
+
+    <label>Trade Amount ($)</label>
+
+    <input
+        type="number"
+        id="amount"
+        value="100"
+        min="1"
+    >
+
+    <div class="buttons">
+        <button class="buy" onclick="trade('BUY')">
+            BUY
+        </button>
+
+        <button class="sell" onclick="trade('SELL')">
+            SELL
+        </button>
+    </div>
+
+    <p class="small">
+        Demo trading only. No real money is involved.
+    </p>
+
+</section>
+
+<section class="card">
+
+    <h2>Open Trades</h2>
+
+    <div id="trades">
+        <p class="label">No open trades yet.</p>
     </div>
 
 </section>
+
+<section class="card">
+
+    <h2>Trading History</h2>
+
+    <div id="history">
+        <p class="label">Your trades will appear here.</p>
+    </div>
+
+</section>
+
+</div>
 
 <footer>
-    © 2026 Nexora FX. All rights reserved.
-    <p>Demo trading interface. Prices are illustrative.</p>
+    <p>NEXORA FX</p>
+    <p>Demo Trading Platform</p>
+    <p class="small">
+        This website is a trading simulator.
+        It does not execute real financial trades.
+    </p>
 </footer>
+
+<script>
+
+let balance = 10000;
+
+let openTrades = [];
+
+let history = [];
+
+function changeChart() {
+
+    let symbol = document.getElementById("symbol").value;
+
+    document.getElementById("chart").innerHTML = "";
+
+    new TradingView.widget({
+        "width": "100%",
+        "height": 400,
+        "symbol": symbol,
+        "interval": "15",
+        "timezone": "Africa/Nairobi",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#111827",
+        "enable_publishing": false,
+        "hide_top_toolbar": false,
+        "allow_symbol_change": false,
+        "container_id": "chart"
+    });
+
+}
+
+function trade(type) {
+
+    let amount = Number(document.getElementById("amount").value);
+
+    let symbol = document.getElementById("symbol").value;
+
+    if (amount <= 0) {
+        alert("Enter a valid trade amount.");
+        return;
+    }
+
+    if (amount > balance) {
+        alert("Insufficient demo balance!");
+        return;
+    }
+
+    balance -= amount;
+
+    let tradeData = {
+        id: Date.now(),
+        symbol: symbol,
+        type: type,
+        amount: amount
+    };
+
+    openTrades.push(tradeData);
+
+    updateBalance();
+
+    updateTrades();
+
+    alert(type + " trade opened successfully!");
+}
+
+function closeTrade(id) {
+
+    let index = openTrades.findIndex(t => t.id === id);
+
+    if (index === -1) return;
+
+    let tradeData = openTrades[index];
+
+    let profit = Math.random() * tradeData.amount * 0.04;
+
+    let result = tradeData.amount + profit;
+
+    balance += result;
+
+    history.unshift({
+        symbol: tradeData.symbol,
+        type: tradeData.type,
+        profit: profit
+    });
+
+    openTrades.splice(index, 1);
+
+    updateBalance();
+
+    updateTrades();
+
+    updateHistory();
+
+    alert("Demo trade closed!\nProfit: $" + profit.toFixed(2));
+}
+
+function updateBalance() {
+
+    document.getElementById("balance").innerText =
+        "$" + balance.toFixed(2);
+
+}
+
+function updateTrades() {
+
+    let container = document.getElementById("trades");
+
+    if (openTrades.length === 0) {
+
+        container.innerHTML =
+            '<p class="label">No open trades yet.</p>';
+
+        return;
+    }
+
+    container.innerHTML = "";
+
+    openTrades.forEach(t => {
+
+        let div = document.createElement("div");
+
+        div.className = "trade";
+
+        div.innerHTML = `
+            <strong>${t.type} ${t.symbol}</strong>
+            <p>Amount: $${t.amount.toFixed(2)}</p>
+            <button
+                style="background:#374151;width:100%;margin-top:10px"
+                onclick="closeTrade(${t.id})">
+                CLOSE TRADE
+            </button>
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+function updateHistory() {
+
+    let container = document.getElementById("history");
+
+    if (history.length === 0) {
+
+        container.innerHTML =
+            '<p class="label">Your trades will appear here.</p>';
+
+        return;
+    }
+
+    container.innerHTML = "";
+
+    history.forEach(t => {
+
+        let div = document.createElement("div");
+
+        div.className = "trade";
+
+        div.innerHTML = `
+            <strong>${t.type} ${t.symbol}</strong>
+            <p class="green">Profit: $${t.profit.toFixed(2)}</p>
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+changeChart();
+
+</script>
 
 </body>
 </html>
