@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -123,6 +124,12 @@ button {
     margin-bottom: 10px;
 }
 
+.close-button {
+    background: #374151;
+    width: 100%;
+    margin-top: 10px;
+}
+
 footer {
     text-align: center;
     color: #6b7280;
@@ -133,6 +140,14 @@ footer {
     font-size: 12px;
     color: #9ca3af;
     margin-top: 10px;
+}
+
+.green {
+    color: #00d4aa;
+}
+
+.red {
+    color: #e74c3c;
 }
 </style>
 </head>
@@ -153,7 +168,7 @@ footer {
 <section class="card" id="dashboard">
     <p class="label">DEMO ACCOUNT BALANCE</p>
 
-    <h1 class="balance" id="balance">$10,000.00</h1>
+    <h1 class="balance" id="accountBalance">$10,000.00</h1>
 
     <p class="label">Virtual funds for practice trading</p>
 </section>
@@ -204,8 +219,9 @@ footer {
     <input
         type="number"
         id="amount"
-        value="100"
+        value="10"
         min="1"
+        step="1"
     >
 
     <div class="buttons">
@@ -257,11 +273,83 @@ footer {
 
 <script>
 
+// STORAGE KEY
+
+const STORAGE_KEY = "nexoraFX_data";
+
+// ACCOUNT DATA
+
 let balance = 10000;
-
 let openTrades = [];
-
 let history = [];
+
+// LOAD SAVED DATA
+
+function loadData() {
+
+    try {
+
+        let saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+
+            let data = JSON.parse(saved);
+
+            if (
+                typeof data.balance === "number" &&
+                data.balance >= 0 &&
+                Array.isArray(data.openTrades) &&
+                Array.isArray(data.history)
+            ) {
+                balance = data.balance;
+                openTrades = data.openTrades;
+                history = data.history;
+            }
+        }
+
+    } catch (error) {
+
+        console.log("Could not load saved data:", error);
+
+    }
+
+}
+
+// SAVE DATA
+
+function saveData() {
+
+    try {
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+                balance: balance,
+                openTrades: openTrades,
+                history: history
+            })
+        );
+
+    } catch (error) {
+
+        alert("Could not save your account data.");
+
+        console.log(error);
+
+    }
+
+}
+
+// UPDATE ACCOUNT DISPLAY
+
+function updateBalance() {
+
+    document.getElementById("accountBalance").innerText =
+        "$" + balance.toFixed(2);
+
+}
+
+// TRADING CHART
 
 function changeChart() {
 
@@ -269,7 +357,17 @@ function changeChart() {
 
     document.getElementById("chart").innerHTML = "";
 
+    if (typeof TradingView === "undefined") {
+
+        document.getElementById("chart").innerText =
+            "Chart unavailable. Check your internet connection.";
+
+        return;
+
+    }
+
     new TradingView.widget({
+
         "width": "100%",
         "height": 400,
         "symbol": symbol,
@@ -283,51 +381,74 @@ function changeChart() {
         "hide_top_toolbar": false,
         "allow_symbol_change": false,
         "container_id": "chart"
+
     });
 
 }
 
+// OPEN DEMO TRADE
+
 function trade(type) {
 
-    let amount = Number(document.getElementById("amount").value);
+    let amount = Number(
+        document.getElementById("amount").value
+    );
 
     let symbol = document.getElementById("symbol").value;
 
-    if (amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Enter a valid trade amount.");
+
         return;
+
     }
 
     if (amount > balance) {
+
         alert("Insufficient demo balance!");
+
         return;
+
     }
 
     balance -= amount;
 
     let tradeData = {
+
         id: Date.now(),
         symbol: symbol,
         type: type,
-        amount: amount
+        amount: amount,
+        date: new Date().toISOString()
+
     };
 
     openTrades.push(tradeData);
+
+    saveData();
 
     updateBalance();
 
     updateTrades();
 
-    alert(type + " trade opened successfully!");
+    alert(type + " demo trade opened successfully!");
+
 }
+
+// CLOSE DEMO TRADE
 
 function closeTrade(id) {
 
-    let index = openTrades.findIndex(t => t.id === id);
+    let index = openTrades.findIndex(
+        t => t.id === id
+    );
 
     if (index === -1) return;
 
     let tradeData = openTrades[index];
+
+    // SIMULATED PROFIT FOR DEMO PURPOSES
 
     let profit = Math.random() * tradeData.amount * 0.04;
 
@@ -336,12 +457,18 @@ function closeTrade(id) {
     balance += result;
 
     history.unshift({
+
         symbol: tradeData.symbol,
         type: tradeData.type,
-        profit: profit
+        amount: tradeData.amount,
+        profit: profit,
+        date: new Date().toISOString()
+
     });
 
     openTrades.splice(index, 1);
+
+    saveData();
 
     updateBalance();
 
@@ -349,15 +476,14 @@ function closeTrade(id) {
 
     updateHistory();
 
-    alert("Demo trade closed!\nProfit: $" + profit.toFixed(2));
-}
-
-function updateBalance() {
-
-    document.getElementById("balance").innerText =
-        "$" + balance.toFixed(2);
+    alert(
+        "Demo trade closed!\nProfit: $" +
+        profit.toFixed(2)
+    );
 
 }
+
+// DISPLAY OPEN TRADES
 
 function updateTrades() {
 
@@ -369,6 +495,7 @@ function updateTrades() {
             '<p class="label">No open trades yet.</p>';
 
         return;
+
     }
 
     container.innerHTML = "";
@@ -379,21 +506,36 @@ function updateTrades() {
 
         div.className = "trade";
 
-        div.innerHTML = `
-            <strong>${t.type} ${t.symbol}</strong>
-            <p>Amount: $${t.amount.toFixed(2)}</p>
-            <button
-                style="background:#374151;width:100%;margin-top:10px"
-                onclick="closeTrade(${t.id})">
-                CLOSE TRADE
-            </button>
-        `;
+        let title = document.createElement("strong");
+
+        title.textContent = t.type + " " + t.symbol;
+
+        let amount = document.createElement("p");
+
+        amount.textContent =
+            "Amount: $" + Number(t.amount).toFixed(2);
+
+        let button = document.createElement("button");
+
+        button.className = "close-button";
+
+        button.textContent = "CLOSE TRADE";
+
+        button.onclick = function() {
+            closeTrade(t.id);
+        };
+
+        div.appendChild(title);
+        div.appendChild(amount);
+        div.appendChild(button);
 
         container.appendChild(div);
 
     });
 
 }
+
+// DISPLAY TRADING HISTORY
 
 function updateHistory() {
 
@@ -405,6 +547,7 @@ function updateHistory() {
             '<p class="label">Your trades will appear here.</p>';
 
         return;
+
     }
 
     container.innerHTML = "";
@@ -415,16 +558,42 @@ function updateHistory() {
 
         div.className = "trade";
 
-        div.innerHTML = `
-            <strong>${t.type} ${t.symbol}</strong>
-            <p class="green">Profit: $${t.profit.toFixed(2)}</p>
-        `;
+        let title = document.createElement("strong");
+
+        title.textContent = t.type + " " + t.symbol;
+
+        let amount = document.createElement("p");
+
+        amount.textContent =
+            "Amount: $" + Number(t.amount).toFixed(2);
+
+        let profit = document.createElement("p");
+
+        profit.className = "green";
+
+        profit.textContent =
+            "Simulated Profit: $" +
+            Number(t.profit).toFixed(2);
+
+        div.appendChild(title);
+        div.appendChild(amount);
+        div.appendChild(profit);
 
         container.appendChild(div);
 
     });
 
 }
+
+// START APPLICATION
+
+loadData();
+
+updateBalance();
+
+updateTrades();
+
+updateHistory();
 
 changeChart();
 
