@@ -4,826 +4,651 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXORA FX</title>
+<title>NEXORA FX | Trading Platform</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+  --bg:#0b1220;
+  --panel:#121d2d;
+  --panel2:#1b293b;
+  --border:#26374b;
+  --text:#edf3fa;
+  --muted:#91a1b5;
+  --green:#08c99a;
+  --red:#ed5264;
+  --blue:#3487f5;
 }
-
-body {
-    font-family: Arial, sans-serif;
-    background: #0b1120;
-    color: white;
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
 }
-
-header {
-    background: #111827;
-    padding: 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+button,input,select{font:inherit}
+button{cursor:pointer}
+.topbar{
+  height:66px;
+  background:#101a29;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-
-.logo {
-    color: #00d4aa;
-    font-size: 24px;
-    font-weight: bold;
+.logo{font-size:22px;font-weight:800;color:var(--green)}
+.top-actions{display:flex;align-items:center;gap:12px}
+.demo-tag{
+  color:var(--green);
+  border:1px solid var(--green);
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
 }
-
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 12px;
-    font-size: 14px;
+.user-email{font-size:12px;color:var(--muted)}
+.layout{display:flex;min-height:calc(100vh - 66px)}
+.sidebar{
+  width:220px;
+  background:#101a29;
+  border-right:1px solid var(--border);
+  padding:20px 12px;
+  flex-shrink:0;
 }
-
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 16px;
+.sidebar button{
+  width:100%;
+  background:transparent;
+  color:#aab8ca;
+  border:0;
+  text-align:left;
+  padding:14px;
+  border-radius:9px;
+  margin-bottom:5px;
 }
-
-.card {
-    background: #111827;
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 18px;
-    border: 1px solid #1f2937;
+.sidebar button.active,.sidebar button:hover{
+  background:#1c3041;
+  color:var(--green);
 }
-
-h2 {
-    margin-bottom: 16px;
-    font-size: 20px;
+.main{flex:1;min-width:0;padding:22px}
+.page{display:none}
+.page.active{display:block}
+.page-title{
+  font-size:23px;
+  margin-bottom:7px;
 }
-
-h3 {
-    margin: 15px 0;
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:20px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:18px;
 }
-
-.label {
-    color: #9ca3af;
-    font-size: 13px;
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:16px;
+  min-width:0;
 }
-
-.balance {
-    color: #00d4aa;
-    font-size: 30px;
-    margin: 10px 0;
-    overflow-wrap: anywhere;
+.stat-label{color:var(--muted);font-size:12px}
+.stat-value{font-size:23px;font-weight:bold;margin-top:10px;overflow-wrap:anywhere}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.blue{color:var(--blue)}
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
 }
-
-.account-id {
-    color: #00d4aa;
-    font-size: 14px;
-    margin-top: 10px;
+.section-title{font-size:16px;margin-bottom:15px}
+.market-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
 }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
+.market{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:13px;
+  text-align:left;
+  color:white;
 }
-
-.stat {
-    background: #1f2937;
-    padding: 15px;
-    border-radius: 10px;
+.market.selected{border-color:var(--green)}
+.market strong{display:block;margin-bottom:8px}
+.market small{color:var(--muted)}
+#chart{height:420px;width:100%;overflow:hidden}
+.trade-controls{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
 }
-
-.stat strong {
-    display: block;
-    font-size: 20px;
-    margin-top: 8px;
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
+input,select{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#0c1726;
+  color:white;
+  margin-bottom:13px;
+  outline:none;
 }
-
-input, select {
-    width: 100%;
-    background: #1f2937;
-    color: white;
-    padding: 13px;
-    border: 1px solid #374151;
-    border-radius: 8px;
-    margin: 9px 0 14px;
-    font-size: 15px;
+input:focus,select:focus{border-color:var(--green)}
+.btn{
+  border:0;
+  border-radius:8px;
+  padding:12px 16px;
+  font-weight:bold;
 }
-
-button {
-    border: none;
-    padding: 13px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
+.btn-green{background:var(--green);color:#061c16}
+.btn-red{background:var(--red);color:white}
+.btn-blue{background:var(--blue);color:white}
+.btn-gray{background:#34445a;color:white}
+.btn-full{width:100%;margin-top:5px}
+.trade-buttons{display:flex;gap:10px}
+.trade-buttons button{flex:1}
+.item{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  padding:14px;
+  border-radius:9px;
+  margin-bottom:10px;
+  overflow-wrap:anywhere;
 }
-
-button:active {
-    opacity: 0.8;
+.item p{color:var(--muted);font-size:12px;margin-top:8px}
+.item button{margin-top:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th,td{
+  text-align:left;
+  padding:13px 10px;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
 }
-
-.buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
+th{color:var(--muted)}
+.account-number{color:var(--green);font-weight:bold}
+.notice{
+  background:#292817;
+  color:#edda9b;
+  border:1px solid #62552b;
+  padding:12px;
+  border-radius:9px;
+  font-size:12px;
+  line-height:1.6;
+  margin-bottom:18px;
 }
-
-.buttons button {
-    flex: 1;
+.auth-screen{
+  position:fixed;
+  inset:0;
+  background:#09111e;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  overflow:auto;
 }
-
-.buy, .green-button {
-    background: #00a884;
+.auth-box{
+  width:100%;
+  max-width:410px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:25px;
 }
-
-.sell, .red-button {
-    background: #dc3545;
+.auth-box h1{text-align:center;color:var(--green);margin-bottom:8px}
+.auth-box .subtitle{text-align:center}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px}
+.auth-tabs button{flex:1}
+.auth-message{font-size:12px;color:#f0c76e;margin:10px 0;line-height:1.5}
+.hidden{display:none!important}
+.bottom-nav{display:none}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
-.blue-button {
-    background: #2563eb;
-}
-
-.gray-button {
-    background: #374151;
-}
-
-.full-button {
-    width: 100%;
-    margin-top: 8px;
-}
-
-.market {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px;
-    background: #1f2937;
-    border-radius: 8px;
-    margin-bottom: 9px;
-}
-
-#chart {
-    width: 100%;
-    height: 400px;
-    overflow: hidden;
-    border-radius: 10px;
-    background: #0b1120;
-}
-
-.trade {
-    background: #1f2937;
-    padding: 15px;
-    border-radius: 9px;
-    margin-bottom: 10px;
-    overflow-wrap: anywhere;
-}
-
-.trade p {
-    margin-top: 8px;
-    color: #d1d5db;
-}
-
-.positive {
-    color: #00d4aa;
-}
-
-.negative {
-    color: #ff6464;
-}
-
-.small {
-    color: #9ca3af;
-    font-size: 12px;
-    line-height: 1.6;
-    margin-top: 12px;
-}
-
-.notice {
-    background: #332b16;
-    border: 1px solid #80651e;
-    color: #f5d98a;
-    padding: 13px;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.6;
-    margin-bottom: 18px;
-}
-
-footer {
-    text-align: center;
-    color: #9ca3af;
-    padding: 25px;
-    line-height: 1.8;
-}
-
-@media(max-width: 500px) {
-    header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    nav a {
-        margin-left: 0;
-        margin-right: 12px;
-    }
-
-    .card {
-        padding: 15px;
-    }
-
-    #chart {
-        height: 330px;
-    }
+@media(max-width:650px){
+  .sidebar{display:none}
+  .main{padding:14px 12px 85px}
+  .topbar{padding:0 13px}
+  .logo{font-size:19px}
+  .user-email{display:none}
+  .grid{gap:9px}
+  .panel{padding:14px}
+  .stat-value{font-size:19px}
+  .trade-controls{grid-template-columns:1fr}
+  #chart{height:350px}
+  .bottom-nav{
+    display:flex;
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#101a29;
+    border-top:1px solid var(--border);
+    justify-content:space-around;
+    padding:9px 2px;
+    z-index:15;
+  }
+  .bottom-nav button{
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    font-size:10px;
+    padding:6px;
+  }
+  .bottom-nav button.active{color:var(--green)}
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <div class="logo">NEXORA FX</div>
-    <nav>
-        <a href="#dashboard">Account</a>
-        <a href="#markets">Markets</a>
-        <a href="#trading">Trade</a>
-        <a href="#history">History</a>
-    </nav>
-</header>
+<!-- LOGIN AND REGISTRATION -->
 
-<main class="container">
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <h1>NEXORA FX</h1>
+    <p class="subtitle">Your trading practice platform</p>
 
-<div class="notice">
-    <strong>DEMO PLATFORM</strong><br>
-    NEXORA FX is a trading simulator. All account balances,
-    deposits, withdrawals and trades are virtual. No real money
-    is transferred and no real broker orders are placed.
+    <div class="auth-tabs">
+      <button class="btn btn-green" id="loginTab" onclick="showAuth('login')">LOGIN</button>
+      <button class="btn btn-gray" id="registerTab" onclick="showAuth('register')">REGISTER</button>
+    </div>
+
+    <form id="authForm">
+      <div id="nameField" class="hidden">
+        <label>Full name</label>
+        <input id="fullName" type="text" placeholder="Your full name">
+      </div>
+
+      <label>Email address</label>
+      <input id="email" type="email" required placeholder="Enter your email">
+
+      <label>Password</label>
+      <input id="password" type="password" required minlength="6" placeholder="At least 6 characters">
+
+      <button class="btn btn-green btn-full" id="authSubmit" type="submit">LOGIN</button>
+    </form>
+
+    <button class="btn btn-gray btn-full" id="forgotButton" onclick="forgotPassword()">Forgot password?</button>
+    <p id="authMessage" class="auth-message"></p>
+    <p class="subtitle">Demo trading only. No real-money transactions.</p>
+  </div>
 </div>
 
-<!-- ACCOUNT DASHBOARD -->
+<!-- HEADER -->
 
-<section class="card" id="dashboard">
-    <p class="label">YOUR DEMO ACCOUNT</p>
-    <h1 class="balance" id="balance">$10,000.00</h1>
-    <p class="label">Available demo balance</p>
+<header class="topbar">
+  <div class="logo">NEXORA FX</div>
+  <div class="top-actions">
+    <span class="demo-tag">DEMO ACCOUNT</span>
+    <span class="user-email" id="userEmail">Not signed in</span>
+    <button class="btn btn-gray" onclick="logout()">Logout</button>
+  </div>
+</header>
 
-    <p class="account-id">
-        Account ID: <span id="accountId"></span>
-    </p>
+<div class="layout">
 
-    <div class="grid" style="margin-top:18px;">
-        <div class="stat">
-            <span class="label">Total Profit/Loss</span>
-            <strong id="totalPL">$0.00</strong>
-        </div>
+<!-- DESKTOP SIDEBAR -->
 
-        <div class="stat">
-            <span class="label">Open Trades</span>
-            <strong id="openCount">0</strong>
-        </div>
+<aside class="sidebar">
+  <button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦ Dashboard</button>
+  <button data-page="markets" onclick="goPage('markets')">◈ Markets</button>
+  <button data-page="trade" onclick="goPage('trade')">↗ Trade</button>
+  <button data-page="positions" onclick="goPage('positions')">▤ Open Positions</button>
+  <button data-page="history" onclick="goPage('history')">◷ Trade History</button>
+  <button data-page="wallet" onclick="goPage('wallet')">▣ Wallet</button>
+  <button data-page="profile" onclick="goPage('profile')">♙ My Account</button>
+</aside>
 
-        <div class="stat">
-            <span class="label">Closed Trades</span>
-            <strong id="closedCount">0</strong>
-        </div>
+<main class="main">
+
+<div class="notice">
+  <strong>DEMO PLATFORM:</strong> NEXORA FX is a practice simulator.
+  All balances, deposits, withdrawals and trades are virtual.
+  No real broker orders or money transfers are made.
+</div>
+
+<!-- DASHBOARD -->
+
+<section class="page active" id="dashboard">
+  <h1 class="page-title">Trading Dashboard</h1>
+  <p class="subtitle">Welcome to your NEXORA FX trading terminal.</p>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="stat-label">Account Equity</div>
+      <div class="stat-value" id="equity">$10,000.00</div>
     </div>
-</section>
+    <div class="panel">
+      <div class="stat-label">Available Balance</div>
+      <div class="stat-value" id="balance">$10,000.00</div>
+    </div>
+    <div class="panel">
+      <div class="stat-label">Total Profit / Loss</div>
+      <div class="stat-value green" id="totalPL">$0.00</div>
+    </div>
+    <div class="panel">
+      <div class="stat-label">Open Positions</div>
+      <div class="stat-value" id="openCount">0</div>
+    </div>
+  </div>
 
-<!-- DEMO ACCOUNT MANAGEMENT -->
+  <div class="panel">
+    <div class="row">
+      <h2 class="section-title">Market Watch</h2>
+      <span class="demo-tag">MARKETS</span>
+    </div>
+    <div class="market-grid">
+      <button class="market selected" onclick="selectMarket('FX:EURUSD')">
+        <strong>EUR/USD</strong><small>Euro / US Dollar</small>
+      </button>
+      <button class="market" onclick="selectMarket('FX:GBPUSD')">
+        <strong>GBP/USD</strong><small>Pound / US Dollar</small>
+      </button>
+      <button class="market" onclick="selectMarket('FX:USDJPY')">
+        <strong>USD/JPY</strong><small>US Dollar / Yen</small>
+      </button>
+      <button class="market" onclick="selectMarket('OANDA:XAUUSD')">
+        <strong>XAU/USD</strong><small>Gold / US Dollar</small>
+      </button>
+    </div>
+  </div>
 
-<section class="card">
-    <h2>Account Management</h2>
+  <div class="panel">
+    <div class="row">
+      <h2 class="section-title">Live Market Chart</h2>
+      <span class="stat-label" id="chartSymbol">EUR/USD</span>
+    </div>
+    <div id="chart"></div>
+    <p class="subtitle">Chart provided by TradingView. Quotes and execution in this simulator are not connected to a broker.</p>
+  </div>
 
-    <label>Demo deposit amount ($)</label>
-    <input type="number" id="depositAmount"
-           min="1" step="0.01" placeholder="Enter amount">
-
-    <button class="green-button full-button"
-            onclick="depositDemo()">
-        ADD DEMO FUNDS
-    </button>
-
-    <label style="display:block;margin-top:18px;">
-        Demo withdrawal amount ($)
-    </label>
-
-    <input type="number" id="withdrawAmount"
-           min="1" step="0.01" placeholder="Enter amount">
-
-    <button class="red-button full-button"
-            onclick="withdrawDemo()">
-        WITHDRAW DEMO FUNDS
-    </button>
-
-    <button class="gray-button full-button"
-            onclick="resetAccount()">
-        RESET DEMO ACCOUNT
-    </button>
-
-    <p class="small">
-        These controls only adjust your virtual practice balance.
-        They do not send or receive actual money.
-    </p>
+  <div class="panel">
+    <h2 class="section-title">Quick Trade</h2>
+    <div class="trade-controls">
+      <div>
+        <label>Market</label>
+        <select id="quickSymbol" onchange="selectMarket(this.value)">
+          <option value="FX:EURUSD">EUR/USD</option>
+          <option value="FX:GBPUSD">GBP/USD</option>
+          <option value="FX:USDJPY">USD/JPY</option>
+          <option value="OANDA:XAUUSD">Gold</option>
+        </select>
+      </div>
+      <div>
+        <label>Trade amount ($)</label>
+        <input id="quickAmount" type="number" value="100" min="1" step="0.01">
+      </div>
+      <div>
+        <label>Practice entry price</label>
+        <input id="quickPrice" type="number" min="0.000001" step="any" placeholder="Enter price">
+      </div>
+    </div>
+    <div class="trade-buttons">
+      <button class="btn btn-green" onclick="openTrade('BUY')">BUY</button>
+      <button class="btn btn-red" onclick="openTrade('SELL')">SELL</button>
+    </div>
+  </div>
 </section>
 
 <!-- MARKETS -->
 
-<section class="card" id="markets">
-    <h2>Markets</h2>
-
-    <div class="market">
-        <span>EUR/USD</span>
-        <strong>Forex</strong>
+<section class="page" id="markets">
+  <h1 class="page-title">Financial Markets</h1>
+  <p class="subtitle">Choose a market to view its TradingView chart.</p>
+  <div class="panel">
+    <div class="market-grid">
+      <button class="market" onclick="selectMarket('FX:EURUSD')"><strong>EUR/USD</strong><small>Forex</small></button>
+      <button class="market" onclick="selectMarket('FX:GBPUSD')"><strong>GBP/USD</strong><small>Forex</small></button>
+      <button class="market" onclick="selectMarket('FX:USDJPY')"><strong>USD/JPY</strong><small>Forex</small></button>
+      <button class="market" onclick="selectMarket('OANDA:XAUUSD')"><strong>XAU/USD</strong><small>Gold</small></button>
     </div>
-
-    <div class="market">
-        <span>GBP/USD</span>
-        <strong>Forex</strong>
-    </div>
-
-    <div class="market">
-        <span>USD/JPY</span>
-        <strong>Forex</strong>
-    </div>
-
-    <div class="market">
-        <span>GOLD (XAU/USD)</span>
-        <strong>Metal</strong>
-    </div>
-
-    <p class="small">
-        Market charts are supplied by TradingView.
-        The list above does not display live quoted prices.
-    </p>
+  </div>
+  <div class="panel">
+    <h2 class="section-title" id="marketChartTitle">EUR/USD Chart</h2>
+    <div id="marketChart"></div>
+  </div>
 </section>
 
-<!-- TRADING TERMINAL -->
+<!-- TRADE -->
 
-<section class="card" id="trading">
-    <h2>Trading Terminal</h2>
-
-    <label>Select Market</label>
-    <select id="symbol" onchange="changeChart()">
-        <option value="FX:EURUSD">EUR/USD</option>
-        <option value="FX:GBPUSD">GBP/USD</option>
-        <option value="FX:USDJPY">USD/JPY</option>
-        <option value="OANDA:XAUUSD">Gold (XAU/USD)</option>
-    </select>
-
-    <div id="chart"></div>
-
-    <h3>Open Demo Trade</h3>
-
-    <label>Trade Amount ($)</label>
-    <input type="number" id="amount"
-           value="100" min="1" step="0.01">
-
-    <label>Entry Price (shown on chart)</label>
-    <input type="number" id="entryPrice"
-           min="0.000001" step="any"
-           placeholder="Enter your practice entry price">
-
-    <div class="buttons">
-        <button class="buy" onclick="trade('BUY')">
-            BUY
-        </button>
-
-        <button class="sell" onclick="trade('SELL')">
-            SELL
-        </button>
+<section class="page" id="trade">
+  <h1 class="page-title">Trading Terminal</h1>
+  <p class="subtitle">Open a simulated practice position.</p>
+  <div class="panel">
+    <div class="trade-controls">
+      <div>
+        <label>Trading instrument</label>
+        <select id="tradeSymbol" onchange="selectMarket(this.value)">
+          <option value="FX:EURUSD">EUR/USD</option>
+          <option value="FX:GBPUSD">GBP/USD</option>
+          <option value="FX:USDJPY">USD/JPY</option>
+          <option value="OANDA:XAUUSD">XAU/USD</option>
+        </select>
+      </div>
+      <div>
+        <label>Amount ($)</label>
+        <input id="tradeAmount" type="number" value="100" min="1" step="0.01">
+      </div>
+      <div>
+        <label>Entry price</label>
+        <input id="tradePrice" type="number" min="0.000001" step="any" placeholder="Enter practice price">
+      </div>
     </div>
-
-    <p class="small">
-        Enter a practice entry price before opening a trade.
-        Trade results are simulated, not broker-calculated.
-    </p>
+    <div class="trade-buttons">
+      <button class="btn btn-green" onclick="openTrade('BUY')">BUY</button>
+      <button class="btn btn-red" onclick="openTrade('SELL')">SELL</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 class="section-title">Trading Information</h2>
+    <p class="subtitle">Enter your own practice entry and exit prices. Results are illustrative, not actual forex contract calculations.</p>
+  </div>
 </section>
 
-<!-- OPEN TRADES -->
+<!-- POSITIONS -->
 
-<section class="card">
-    <h2>Open Trades</h2>
-
-    <div id="trades">
-        <p class="label">No open trades yet.</p>
-    </div>
+<section class="page" id="positions">
+  <h1 class="page-title">Open Positions</h1>
+  <p class="subtitle">Manage your simulated open trades.</p>
+  <div class="panel" id="positionsList">No open positions.</div>
 </section>
 
 <!-- HISTORY -->
 
-<section class="card" id="history">
-    <h2>Trading History</h2>
-
-    <div id="historyList">
-        <p class="label">Your closed trades will appear here.</p>
-    </div>
+<section class="page" id="history">
+  <h1 class="page-title">Trade History</h1>
+  <p class="subtitle">Your completed demo trades.</p>
+  <div class="panel table-wrap">
+    <table>
+      <thead><tr><th>Market</th><th>Side</th><th>Amount</th><th>Result</th><th>Date</th></tr></thead>
+      <tbody id="historyList"><tr><td colspan="5">No trade history yet.</td></tr></tbody>
+    </table>
+  </div>
 </section>
 
-</main>
+<!-- WALLET -->
+
+<section class="page" id="wallet">
+  <h1 class="page-title">My Wallet</h1>
+  <p class="subtitle">Manage your virtual practice funds.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="stat-label">Demo Balance</div>
+      <div class="stat-value" id="walletBalance">$10,000.00</div>
+    </div>
+    <div class="panel">
+      <div class="stat-label">Account Number</div>
+      <div class="stat-value account-number" id="walletId">--</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 class="section-title">Add Demo Funds</h2>
+    <label>Amount ($)</label>
+    <input type="number" id="depositAmount" min="1" step="0.01" placeholder="Enter amount">
+    <button class="btn btn-green btn-full" onclick="demoDeposit()">ADD DEMO FUNDS</button>
+  </div>
+  <div class="panel">
+    <h2 class="section-title">Withdraw Demo Funds</h2>
+    <label>Amount ($)</label>
+    <input type="number" id="withdrawAmount" min="1" step="0.01" placeholder="Enter amount">
+    <button class="btn btn-red btn-full" onclick="demoWithdraw()">WITHDRAW DEMO FUNDS</button>
+  </div>
+  <div class="panel">
+    <h2 class="section-title">Wallet Activity</h2>
+    <div id="walletHistory">No wallet activity yet.</div>
+  </div>
+</section>
+
+<!-- PROFILE -->
+
+<section class="page" id="profile">
+  <h1 class="page-title">My Account</h1>
+  <p class="subtitle">Your NEXORA FX account information.</p>
+  <div class="panel">
+    <h2 class="section-title">Account Details</h2>
+    <p class="stat-label">Email address</p>
+    <p id="profileEmail" style="margin:8px 0 20px">--</p>
+    <p class="stat-label">Demo account ID</p>
+    <p class="account-number" id="profileId" style="margin:8px 0 20px">--</p>
+    <p class="stat-label">Account type</p>
+    <p style="margin:8px 0 20px">Practice / Demo</p>
+    <button class="btn btn-gray" onclick="resetDemo()">RESET DEMO ACCOUNT</button>
+  </div>
+</section>
 
 <footer>
-    <strong style="color:#00d4aa;">NEXORA FX</strong>
-    <p>Practice. Learn. Improve.</p>
-    <p class="small">
-        Demo trading simulator only.
-        Not a broker, bank or investment service.
-    </p>
+  NEXORA FX · Practice. Learn. Improve.<br>
+  Independent demo simulator. Not a broker or investment service.
 </footer>
+
+</main>
+</div>
+
+<!-- MOBILE NAVIGATION -->
+
+<nav class="bottom-nav">
+  <button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦<br>Home</button>
+  <button data-page="markets" onclick="goPage('markets')">◈<br>Markets</button>
+  <button data-page="trade" onclick="goPage('trade')">↗<br>Trade</button>
+  <button data-page="positions" onclick="goPage('positions')">▤<br>Positions</button>
+  <button data-page="wallet" onclick="goPage('wallet')">▣<br>Wallet</button>
+</nav>
 
 <script>
 
-// ACCOUNT DATA
+// FIREBASE CONFIGURATION
 
-const STORAGE_KEY = "nexoraFX_account_v1";
+const firebaseConfig = {
+  apiKey: "AIzaSyCBpGYT2qTTgoPPoQJs72z0oo9W4jzVCNo",
+  authDomain: "nexora-fx-1cf38.firebaseapp.com",
+  projectId: "nexora-fx-1cf38",
+  storageBucket: "nexora-fx-1cf38.firebasestorage.app",
+  messagingSenderId: "812320570585",
+  appId: "1:812320570585:web:c86461b3afd820937352c8",
+  measurementId: "G-XEZMYYY5G4"
+};
 
-function createAccount() {
-    return {
-        accountId: "NX" + Math.floor(10000000 + Math.random() * 90000000),
-        balance: 10000,
-        totalPL: 0,
-        openTrades: [],
-        history: []
-    };
+let auth = null;
+let currentUser = null;
+let authMode = "login";
+let account = null;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+} catch (error) {
+  console.error("Firebase initialization error:", error);
 }
 
-function loadAccount() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+// AUTHENTICATION
 
-        if (saved) {
-            const data = JSON.parse(saved);
+function showAuth(mode) {
+  authMode = mode;
 
-            if (
-                data &&
-                typeof data.balance === "number" &&
-                Array.isArray(data.openTrades) &&
-                Array.isArray(data.history)
-            ) {
-                return data;
-            }
-        }
-    } catch (error) {
-        console.log("Could not load saved account.");
-    }
+  document.getElementById("nameField").classList.toggle("hidden", mode !== "register");
+  document.getElementById("forgotButton").classList.toggle("hidden", mode !== "login");
 
-    return createAccount();
+  document.getElementById("loginTab").className =
+    "btn " + (mode === "login" ? "btn-green" : "btn-gray");
+
+  document.getElementById("registerTab").className =
+    "btn " + (mode === "register" ? "btn-green" : "btn-gray");
+
+  document.getElementById("authSubmit").textContent =
+    mode === "login" ? "LOGIN" : "CREATE ACCOUNT";
+
+  document.getElementById("authMessage").textContent = "";
 }
 
-let account = loadAccount();
+document.getElementById("authForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-function saveAccount() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
+  if (!auth) {
+    document.getElementById("authMessage").textContent =
+      "Firebase could not load. Check your internet connection.";
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const fullName = document.getElementById("fullName").value.trim();
+  const button = document.getElementById("authSubmit");
+
+  button.disabled = true;
+  button.textContent = "PLEASE WAIT...";
+
+  try {
+    if (authMode === "register") {
+      const result = await auth.createUserWithEmailAndPassword(email, password);
+
+      if (fullName) {
+        await result.user.updateProfile({displayName: fullName});
+      }
+
+      alert("NEXORA FX account created successfully.");
+    } else {
+      await auth.signInWithEmailAndPassword(email, password);
+    }
+  } catch (error) {
+    document.getElementById("authMessage").textContent =
+      friendlyError(error);
+  } finally {
+    button.disabled = false;
+    button.textContent =
+      authMode === "login" ? "LOGIN" : "CREATE ACCOUNT";
+  }
+});
+
+function friendlyError(error) {
+  const messages = {
+    "auth/email-already-in-use": "This email already has an account. Please log in.",
+    "auth/invalid-email": "Please enter a valid email address.",
+    "auth/weak-password": "Choose a stronger password with at least 6 characters.",
+    "auth/user-not-found": "No account was found with this email.",
+    "auth/wrong-password": "Incorrect password.",
+    "auth/invalid-credential": "Email or password is incorrect.",
+    "auth/network-request-failed": "Network problem. Check your internet.",
+    "auth/unauthorized-domain": "This website domain is not yet authorized in Firebase."
+  };
+
+  return messages[error.code] || error.message || "Something went wrong.";
 }
 
-// DISPLAY ACCOUNT
+async function forgotPassword() {
+  if (!auth) return;
 
-function updateDashboard() {
-    document.getElementById("balance").textContent =
-        "$" + account.balance.toFixed(2);
-
-    document.getElementById("accountId").textContent =
-        account.accountId;
-
-    const pl = document.getElementById("totalPL");
-
-    pl.textContent =
-        (account.totalPL >= 0 ? "+$" : "-$") +
-        Math.abs(account.totalPL).toFixed(2);
-
-    pl.className =
-        account.totalPL >= 0 ? "positive" : "negative";
-
-    document.getElementById("openCount").textContent =
-        account.openTrades.length;
-
-    document.getElementById("closedCount").textContent =
-        account.history.length;
-}
-
-// DEMO DEPOSIT
-
-function depositDemo() {
-    const amount = Number(
-        document.getElementById("depositAmount").value
-    );
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-        alert("Enter a valid demo deposit amount.");
-        return;
-    }
-
-    account.balance += amount;
-
-    document.getElementById("depositAmount").value = "";
-
-    saveAccount();
-    updateDashboard();
-
-    alert("Demo funds added successfully.");
-}
-
-// DEMO WITHDRAWAL
-
-function withdrawDemo() {
-    const amount = Number(
-        document.getElementById("withdrawAmount").value
-    );
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-        alert("Enter a valid demo withdrawal amount.");
-        return;
-    }
-
-    if (amount > account.balance) {
-        alert("Insufficient demo balance.");
-        return;
-    }
-
-    account.balance -= amount;
-
-    document.getElementById("withdrawAmount").value = "";
-
-    saveAccount();
-    updateDashboard();
-
-    alert("Demo funds withdrawn successfully.");
-}
-
-// RESET ACCOUNT
-
-function resetAccount() {
-    const confirmed = confirm(
-        "Are you sure? This will erase your demo trades and history and reset your balance to $10,000."
-    );
-
-    if (!confirmed) return;
-
-    account = createAccount();
-
-    saveAccount();
-    updateDashboard();
-    updateTrades();
-    updateHistory();
-
-    alert("Your demo account has been reset.");
-}
-
-// OPEN DEMO TRADE
-
-function trade(type) {
-    const amount = Number(
-        document.getElementById("amount").value
-    );
-
-    const entryPrice = Number(
-        document.getElementById("entryPrice").value
-    );
-
-    const symbol = document.getElementById("symbol").value;
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-        alert("Enter a valid trade amount.");
-        return;
-    }
-
-    if (!Number.isFinite(entryPrice) || entryPrice <= 0) {
-        alert("Enter a valid entry price.");
-        return;
-    }
-
-    if (amount > account.balance) {
-        alert("Insufficient demo balance.");
-        return;
-    }
-
-    account.balance -= amount;
-
-    account.openTrades.push({
-        id: Date.now() + Math.floor(Math.random() * 1000),
-        symbol: symbol,
-        type: type,
-        amount: amount,
-        entryPrice: entryPrice,
-        date: new Date().toLocaleString()
-    });
-
-    saveAccount();
-    updateDashboard();
-    updateTrades();
-
-    alert(type + " demo trade opened successfully.");
-}
-
-// CLOSE DEMO TRADE
-
-function closeTrade(id) {
-    const index = account.openTrades.findIndex(
-        trade => trade.id === id
-    );
-
-    if (index === -1) return;
-
-    const tradeData = account.openTrades[index];
-
-    const answer = prompt(
-        "Enter your practice exit price for " +
-        tradeData.symbol +
-        ". Entry price: " +
-        tradeData.entryPrice
-    );
-
-    if (answer === null) return;
-
-    const exitPrice = Number(answer);
-
-    if (!Number.isFinite(exitPrice) || exitPrice <= 0) {
-        alert("Enter a valid exit price.");
-        return;
-    }
-
-    let movement =
-        (exitPrice - tradeData.entryPrice) /
-        tradeData.entryPrice;
-
-    if (tradeData.type === "SELL") {
-        movement = -movement;
-    }
-
-    // Illustrative simulator calculation.
-    // This is NOT a real forex contract calculation.
-
-    let profit = tradeData.amount * movement;
-
-    // Limit demo loss to the amount reserved for this trade.
-    profit = Math.max(-tradeData.amount, profit);
-
-    account.balance += tradeData.amount + profit;
-    account.totalPL += profit;
-
-    account.history.unshift({
-        symbol: tradeData.symbol,
-        type: tradeData.type,
-        amount: tradeData.amount,
-        entryPrice: tradeData.entryPrice,
-        exitPrice: exitPrice,
-        profit: profit,
-        date: new Date().toLocaleString()
-    });
-
-    account.openTrades.splice(index, 1);
-
-    saveAccount();
-    updateDashboard();
-    updateTrades();
-    updateHistory();
-
-    const result = profit >= 0 ? "Profit: $" : "Loss: $";
-
-    alert(
-        "Demo trade closed.\n" +
-        result + Math.abs(profit).toFixed(2)
-    );
-}
-
-// DISPLAY OPEN TRADES
-
-function updateTrades() {
-    const container = document.getElementById("trades");
-
-    if (account.openTrades.length === 0) {
-        container.innerHTML =
-            '<p class="label">No open trades yet.</p>';
-        return;
-    }
-
-    container.innerHTML = "";
-
-    account.openTrades.forEach(t => {
-        const div = document.createElement("div");
-
-        div.className = "trade";
-
-        const heading = document.createElement("strong");
-        heading.textContent = t.type + " " + t.symbol;
-
-        const amount = document.createElement("p");
-        amount.textContent = "Amount: $" + t.amount.toFixed(2);
-
-        const entry = document.createElement("p");
-        entry.textContent = "Entry price: " + t.entryPrice;
-
-        const date = document.createElement("p");
-        date.textContent = "Opened: " + t.date;
-
-        const button = document.createElement("button");
-        button.className = "gray-button full-button";
-        button.textContent = "CLOSE DEMO TRADE";
-        button.onclick = () => closeTrade(t.id);
-
-        div.appendChild(heading);
-        div.appendChild(amount);
-        div.appendChild(entry);
-        div.appendChild(date);
-        div.appendChild(button);
-
-        container.appendChild(div);
-    });
-}
-
-// DISPLAY TRADING HISTORY
-
-function updateHistory() {
-    const container = document.getElementById("historyList");
-
-    if (account.history.length === 0) {
-        container.innerHTML =
-            '<p class="label">Your closed trades will appear here.</p>';
-        return;
-    }
-
-    container.innerHTML = "";
-
-    account.history.forEach(t => {
-        const div = document.createElement("div");
-        div.className = "trade";
-
-        const heading = document.createElement("strong");
-        heading.textContent = t.type + " " + t.symbol;
-
-        const amount = document.createElement("p");
-        amount.textContent = "Trade amount: $" + t.amount.toFixed(2);
-
-        const entry = document.createElement("p");
-        entry.textContent = "Entry: " + t.entryPrice;
-
-        const exit = document.createElement("p");
-        exit.textContent = "Exit: " + t.exitPrice;
-
-        const result = document.createElement("p");
-
-        result.textContent =
-            (t.profit >= 0 ? "Profit: +$" : "Loss: -$") +
-            Math.abs(t.profit).toFixed(2);
-
-        result.className =
-            t.profit >= 0 ? "positive" : "negative";
-
-        const date = document.createElement("p");
-        date.textContent = t.date;
-
-        div.appendChild(heading);
-        div.appendChild(amount);
-        div.appendChild(entry);
-        div.appendChild(exit);
-        div.appendChild(result);
-        div.appendChild(date);
-
-        container.appendChild(div);
-    });
-}
-
-// TRADINGVIEW CHART
-
-function changeChart() {
-    const chart = document.getElementById("chart");
-
-    chart.innerHTML = "";
-
-    if (typeof TradingView === "undefined") {
-        chart.textContent =
-            "TradingView chart could not load. Check your internet connection.";
-        return;
-    }
-
-    new TradingView.widget({
-        width: "100%",
-        height: 400,
-        symbol: document.getElementById("symbol").value,
-        interval: "15",
-        timezone: "Africa/Nairobi",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        toolbar_bg: "#111827",
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        allow_symbol_change: false,
-        container_id: "chart"
-    });
-}
-
-// START WEBSITE
-
-updateDashboard();
-updateTrades();
-updateHistory();
-changeChart();
-
-</script>
-
-</body>
-</html>
+  const email = document.getEle
