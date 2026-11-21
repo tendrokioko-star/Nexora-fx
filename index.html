@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEXORA FX</title>
-
 <script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
@@ -33,7 +32,7 @@ header {
 
 .logo {
     color: #00d4aa;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: bold;
 }
 
@@ -41,12 +40,13 @@ nav a {
     color: white;
     text-decoration: none;
     margin-left: 12px;
+    font-size: 14px;
 }
 
 .container {
-    padding: 16px;
-    max-width: 900px;
+    max-width: 1100px;
     margin: auto;
+    padding: 16px;
 }
 
 .card {
@@ -54,25 +54,108 @@ nav a {
     padding: 20px;
     border-radius: 14px;
     margin-bottom: 18px;
+    border: 1px solid #1f2937;
 }
 
 h2 {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
+    font-size: 20px;
 }
 
 h3 {
-    margin: 18px 0 12px;
+    margin: 15px 0;
 }
 
 .label {
     color: #9ca3af;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .balance {
     color: #00d4aa;
     font-size: 30px;
     margin: 10px 0;
+    overflow-wrap: anywhere;
+}
+
+.account-id {
+    color: #00d4aa;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.stat {
+    background: #1f2937;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 20px;
+    margin-top: 8px;
+}
+
+input, select {
+    width: 100%;
+    background: #1f2937;
+    color: white;
+    padding: 13px;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    margin: 9px 0 14px;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+button:active {
+    opacity: 0.8;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.buttons button {
+    flex: 1;
+}
+
+.buy, .green-button {
+    background: #00a884;
+}
+
+.sell, .red-button {
+    background: #dc3545;
+}
+
+.blue-button {
+    background: #2563eb;
+}
+
+.gray-button {
+    background: #374151;
+}
+
+.full-button {
+    width: 100%;
+    margin-top: 8px;
 }
 
 .market {
@@ -84,98 +167,77 @@ h3 {
     margin-bottom: 9px;
 }
 
-input, select {
-    width: 100%;
-    padding: 14px;
-    margin: 9px 0 15px;
-    background: #1f2937;
-    color: white;
-    border: 1px solid #374151;
-    border-radius: 8px;
-    font-size: 15px;
-}
-
 #chart {
     width: 100%;
     height: 400px;
     overflow: hidden;
     border-radius: 10px;
-    background: #000;
-}
-
-.buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-button {
-    border: none;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-}
-
-.buttons button {
-    width: 50%;
-}
-
-.buy {
-    background: #00b894;
-}
-
-.sell {
-    background: #e74c3c;
-}
-
-.close-button {
-    width: 100%;
-    background: #374151;
-    margin-top: 12px;
+    background: #0b1120;
 }
 
 .trade {
     background: #1f2937;
     padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 12px;
+    border-radius: 9px;
+    margin-bottom: 10px;
+    overflow-wrap: anywhere;
 }
 
-.green {
+.trade p {
+    margin-top: 8px;
+    color: #d1d5db;
+}
+
+.positive {
     color: #00d4aa;
 }
 
-.red {
-    color: #e74c3c;
+.negative {
+    color: #ff6464;
 }
 
 .small {
     color: #9ca3af;
     font-size: 12px;
-    margin-top: 10px;
     line-height: 1.6;
+    margin-top: 12px;
+}
+
+.notice {
+    background: #332b16;
+    border: 1px solid #80651e;
+    color: #f5d98a;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 18px;
 }
 
 footer {
     text-align: center;
     color: #9ca3af;
     padding: 25px;
+    line-height: 1.8;
 }
 
-@media(max-width: 450px) {
-    .container {
-        padding: 12px;
+@media(max-width: 500px) {
+    header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    nav a {
+        margin-left: 0;
+        margin-right: 12px;
     }
 
     .card {
-        padding: 16px;
+        padding: 15px;
     }
 
     #chart {
-        height: 350px;
+        height: 330px;
     }
 }
 </style>
@@ -185,761 +247,583 @@ footer {
 
 <header>
     <div class="logo">NEXORA FX</div>
-
     <nav>
-        <a href="#dashboard">Home</a>
+        <a href="#dashboard">Account</a>
+        <a href="#markets">Markets</a>
         <a href="#trading">Trade</a>
         <a href="#history">History</a>
     </nav>
 </header>
 
-<div class="container">
+<main class="container">
 
-<!-- DASHBOARD -->
+<div class="notice">
+    <strong>DEMO PLATFORM</strong><br>
+    NEXORA FX is a trading simulator. All account balances,
+    deposits, withdrawals and trades are virtual. No real money
+    is transferred and no real broker orders are placed.
+</div>
+
+<!-- ACCOUNT DASHBOARD -->
 
 <section class="card" id="dashboard">
+    <p class="label">YOUR DEMO ACCOUNT</p>
+    <h1 class="balance" id="balance">$10,000.00</h1>
+    <p class="label">Available demo balance</p>
 
-    <p class="label">DEMO ACCOUNT BALANCE</p>
-
-    <h1 class="balance" id="accountBalance">
-        $10,000.00
-    </h1>
-
-    <p class="label">
-        Virtual funds for practice trading
+    <p class="account-id">
+        Account ID: <span id="accountId"></span>
     </p>
 
+    <div class="grid" style="margin-top:18px;">
+        <div class="stat">
+            <span class="label">Total Profit/Loss</span>
+            <strong id="totalPL">$0.00</strong>
+        </div>
+
+        <div class="stat">
+            <span class="label">Open Trades</span>
+            <strong id="openCount">0</strong>
+        </div>
+
+        <div class="stat">
+            <span class="label">Closed Trades</span>
+            <strong id="closedCount">0</strong>
+        </div>
+    </div>
+</section>
+
+<!-- DEMO ACCOUNT MANAGEMENT -->
+
+<section class="card">
+    <h2>Account Management</h2>
+
+    <label>Demo deposit amount ($)</label>
+    <input type="number" id="depositAmount"
+           min="1" step="0.01" placeholder="Enter amount">
+
+    <button class="green-button full-button"
+            onclick="depositDemo()">
+        ADD DEMO FUNDS
+    </button>
+
+    <label style="display:block;margin-top:18px;">
+        Demo withdrawal amount ($)
+    </label>
+
+    <input type="number" id="withdrawAmount"
+           min="1" step="0.01" placeholder="Enter amount">
+
+    <button class="red-button full-button"
+            onclick="withdrawDemo()">
+        WITHDRAW DEMO FUNDS
+    </button>
+
+    <button class="gray-button full-button"
+            onclick="resetAccount()">
+        RESET DEMO ACCOUNT
+    </button>
+
+    <p class="small">
+        These controls only adjust your virtual practice balance.
+        They do not send or receive actual money.
+    </p>
 </section>
 
 <!-- MARKETS -->
 
-<section class="card">
-
+<section class="card" id="markets">
     <h2>Markets</h2>
 
     <div class="market">
         <span>EUR/USD</span>
-        <strong>1.08425</strong>
+        <strong>Forex</strong>
     </div>
 
     <div class="market">
         <span>GBP/USD</span>
-        <strong>1.27150</strong>
+        <strong>Forex</strong>
     </div>
 
     <div class="market">
         <span>USD/JPY</span>
-        <strong>149.825</strong>
+        <strong>Forex</strong>
     </div>
 
     <div class="market">
-        <span>XAU/USD</span>
-        <strong>2650.50</strong>
+        <span>GOLD (XAU/USD)</span>
+        <strong>Metal</strong>
     </div>
 
     <p class="small">
-        These are sample reference prices, not live quotes.
+        Market charts are supplied by TradingView.
+        The list above does not display live quoted prices.
     </p>
-
 </section>
 
 <!-- TRADING TERMINAL -->
 
 <section class="card" id="trading">
-
     <h2>Trading Terminal</h2>
 
     <label>Select Market</label>
-
     <select id="symbol" onchange="changeChart()">
-
         <option value="FX:EURUSD">EUR/USD</option>
-
         <option value="FX:GBPUSD">GBP/USD</option>
-
         <option value="FX:USDJPY">USD/JPY</option>
-
-        <option value="OANDA:XAUUSD">
-            Gold (XAU/USD)
-        </option>
-
+        <option value="OANDA:XAUUSD">Gold (XAU/USD)</option>
     </select>
 
     <div id="chart"></div>
 
-    <h3>Demo Trade</h3>
+    <h3>Open Demo Trade</h3>
 
     <label>Trade Amount ($)</label>
+    <input type="number" id="amount"
+           value="100" min="1" step="0.01">
 
-    <input
-        type="number"
-        id="amount"
-        value="10"
-        min="1"
-        step="0.01"
-    >
-
-    <label>Stop Loss ($)</label>
-
-    <input
-        type="number"
-        id="stopLoss"
-        value="2"
-        min="0"
-        step="0.01"
-    >
-
-    <label>Take Profit ($)</label>
-
-    <input
-        type="number"
-        id="takeProfit"
-        value="4"
-        min="0"
-        step="0.01"
-    >
+    <label>Entry Price (shown on chart)</label>
+    <input type="number" id="entryPrice"
+           min="0.000001" step="any"
+           placeholder="Enter your practice entry price">
 
     <div class="buttons">
-
-        <button class="buy"
-            onclick="trade('BUY')">
+        <button class="buy" onclick="trade('BUY')">
             BUY
         </button>
 
-        <button class="sell"
-            onclick="trade('SELL')">
+        <button class="sell" onclick="trade('SELL')">
             SELL
         </button>
-
     </div>
 
     <p class="small">
-        Demo trading only. No real money is involved.
-        Stop Loss and Take Profit are measured in virtual dollars.
+        Enter a practice entry price before opening a trade.
+        Trade results are simulated, not broker-calculated.
     </p>
-
 </section>
 
 <!-- OPEN TRADES -->
 
 <section class="card">
-
     <h2>Open Trades</h2>
 
     <div id="trades">
         <p class="label">No open trades yet.</p>
     </div>
-
 </section>
 
 <!-- HISTORY -->
 
 <section class="card" id="history">
-
     <h2>Trading History</h2>
 
     <div id="historyList">
-        <p class="label">
-            Your trades will appear here.
-        </p>
+        <p class="label">Your closed trades will appear here.</p>
     </div>
-
 </section>
 
-</div>
+</main>
 
 <footer>
-
-    <p class="logo">NEXORA FX</p>
-
-    <p>Demo Trading Platform</p>
-
+    <strong style="color:#00d4aa;">NEXORA FX</strong>
+    <p>Practice. Learn. Improve.</p>
     <p class="small">
-        This website is a trading simulator.
-        It does not execute real financial trades
-        or connect to a broker.
+        Demo trading simulator only.
+        Not a broker, bank or investment service.
     </p>
-
 </footer>
 
 <script>
 
-// =================================
-// ACCOUNT STORAGE
-// =================================
+// ACCOUNT DATA
 
-const STORAGE_KEY = "nexoraFX_v2_data";
+const STORAGE_KEY = "nexoraFX_account_v1";
 
-let balance = 10000;
+function createAccount() {
+    return {
+        accountId: "NX" + Math.floor(10000000 + Math.random() * 90000000),
+        balance: 10000,
+        totalPL: 0,
+        openTrades: [],
+        history: []
+    };
+}
 
-let openTrades = [];
-
-let history = [];
-
-const marketPrices = {
-    "FX:EURUSD": 1.08425,
-    "FX:GBPUSD": 1.27150,
-    "FX:USDJPY": 149.825,
-    "OANDA:XAUUSD": 2650.50
-};
-
-// =================================
-// LOAD ACCOUNT
-// =================================
-
-function loadData() {
-
+function loadAccount() {
     try {
-
-        let saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY);
 
         if (saved) {
-
-            let data = JSON.parse(saved);
+            const data = JSON.parse(saved);
 
             if (
+                data &&
                 typeof data.balance === "number" &&
-                data.balance >= 0 &&
                 Array.isArray(data.openTrades) &&
                 Array.isArray(data.history)
             ) {
-
-                balance = data.balance;
-
-                openTrades = data.openTrades;
-
-                history = data.history;
-
+                return data;
             }
-
         }
-
     } catch (error) {
-
-        console.log("Loading error:", error);
-
+        console.log("Could not load saved account.");
     }
 
+    return createAccount();
 }
 
-// =================================
-// SAVE ACCOUNT
-// =================================
+let account = loadAccount();
 
-function saveData() {
-
-    try {
-
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({
-                balance: balance,
-                openTrades: openTrades,
-                history: history
-            })
-        );
-
-    } catch (error) {
-
-        console.log("Saving error:", error);
-
-        alert("Could not save account data.");
-
-    }
-
+function saveAccount() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
 }
 
-// =================================
-// UPDATE BALANCE
-// =================================
+// DISPLAY ACCOUNT
 
-function updateBalance() {
+function updateDashboard() {
+    document.getElementById("balance").textContent =
+        "$" + account.balance.toFixed(2);
 
-    document.getElementById(
-        "accountBalance"
-    ).textContent = "$" + balance.toFixed(2);
+    document.getElementById("accountId").textContent =
+        account.accountId;
 
+    const pl = document.getElementById("totalPL");
+
+    pl.textContent =
+        (account.totalPL >= 0 ? "+$" : "-$") +
+        Math.abs(account.totalPL).toFixed(2);
+
+    pl.className =
+        account.totalPL >= 0 ? "positive" : "negative";
+
+    document.getElementById("openCount").textContent =
+        account.openTrades.length;
+
+    document.getElementById("closedCount").textContent =
+        account.history.length;
 }
 
-// =================================
-// TRADINGVIEW CHART
-// =================================
+// DEMO DEPOSIT
 
-function changeChart() {
+function depositDemo() {
+    const amount = Number(
+        document.getElementById("depositAmount").value
+    );
 
-    let symbol = document.getElementById(
-        "symbol"
-    ).value;
-
-    let chart = document.getElementById("chart");
-
-    chart.innerHTML = "";
-
-    if (typeof TradingView === "undefined") {
-
-        chart.textContent =
-            "Chart unavailable. Check your internet connection.";
-
+    if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Enter a valid demo deposit amount.");
         return;
-
     }
 
-    try {
+    account.balance += amount;
 
-        new TradingView.widget({
+    document.getElementById("depositAmount").value = "";
 
-            width: "100%",
+    saveAccount();
+    updateDashboard();
 
-            height: 400,
-
-            symbol: symbol,
-
-            interval: "15",
-
-            timezone: "Africa/Nairobi",
-
-            theme: "dark",
-
-            style: "1",
-
-            locale: "en",
-
-            toolbar_bg: "#111827",
-
-            enable_publishing: false,
-
-            hide_top_toolbar: false,
-
-            allow_symbol_change: false,
-
-            container_id: "chart"
-
-        });
-
-    } catch (error) {
-
-        chart.textContent = "Unable to load chart.";
-
-        console.log(error);
-
-    }
-
+    alert("Demo funds added successfully.");
 }
 
-// =================================
+// DEMO WITHDRAWAL
+
+function withdrawDemo() {
+    const amount = Number(
+        document.getElementById("withdrawAmount").value
+    );
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Enter a valid demo withdrawal amount.");
+        return;
+    }
+
+    if (amount > account.balance) {
+        alert("Insufficient demo balance.");
+        return;
+    }
+
+    account.balance -= amount;
+
+    document.getElementById("withdrawAmount").value = "";
+
+    saveAccount();
+    updateDashboard();
+
+    alert("Demo funds withdrawn successfully.");
+}
+
+// RESET ACCOUNT
+
+function resetAccount() {
+    const confirmed = confirm(
+        "Are you sure? This will erase your demo trades and history and reset your balance to $10,000."
+    );
+
+    if (!confirmed) return;
+
+    account = createAccount();
+
+    saveAccount();
+    updateDashboard();
+    updateTrades();
+    updateHistory();
+
+    alert("Your demo account has been reset.");
+}
+
 // OPEN DEMO TRADE
-// =================================
 
 function trade(type) {
-
-    let amount = Number(
+    const amount = Number(
         document.getElementById("amount").value
     );
 
-    let stopLoss = Number(
-        document.getElementById("stopLoss").value
+    const entryPrice = Number(
+        document.getElementById("entryPrice").value
     );
 
-    let takeProfit = Number(
-        document.getElementById("takeProfit").value
-    );
+    const symbol = document.getElementById("symbol").value;
 
-    let symbol = document.getElementById("symbol").value;
-
-    if (
-        !Number.isFinite(amount) ||
-        amount <= 0
-    ) {
-
+    if (!Number.isFinite(amount) || amount <= 0) {
         alert("Enter a valid trade amount.");
-
         return;
-
     }
 
-    if (
-        !Number.isFinite(stopLoss) ||
-        !Number.isFinite(takeProfit) ||
-        stopLoss < 0 ||
-        takeProfit < 0
-    ) {
-
-        alert("Enter valid Stop Loss and Take Profit values.");
-
+    if (!Number.isFinite(entryPrice) || entryPrice <= 0) {
+        alert("Enter a valid entry price.");
         return;
-
     }
 
-    if (stopLoss > amount) {
-
-        alert("Stop Loss cannot exceed your trade amount.");
-
+    if (amount > account.balance) {
+        alert("Insufficient demo balance.");
         return;
-
     }
 
-    if (amount > balance) {
+    account.balance -= amount;
 
-        alert("Insufficient demo balance!");
-
-        return;
-
-    }
-
-    let tradeData = {
-
-        id: Date.now() + Math.random(),
-
+    account.openTrades.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
         symbol: symbol,
-
         type: type,
-
         amount: amount,
+        entryPrice: entryPrice,
+        date: new Date().toLocaleString()
+    });
 
-        stopLoss: stopLoss,
-
-        takeProfit: takeProfit,
-
-        entryPrice: marketPrices[symbol],
-
-        date: new Date().toISOString()
-
-    };
-
-    balance -= amount;
-
-    openTrades.push(tradeData);
-
-    saveData();
-
-    updateBalance();
-
+    saveAccount();
+    updateDashboard();
     updateTrades();
 
-    alert(
-        type + " demo trade opened successfully!"
-    );
-
+    alert(type + " demo trade opened successfully.");
 }
 
-// =================================
 // CLOSE DEMO TRADE
-// =================================
 
 function closeTrade(id) {
-
-    let index = openTrades.findIndex(
-        t => String(t.id) === String(id)
+    const index = account.openTrades.findIndex(
+        trade => trade.id === id
     );
 
     if (index === -1) return;
 
-    let tradeData = openTrades[index];
+    const tradeData = account.openTrades[index];
 
-    let input = document.getElementById(
-        "exit-" + id
+    const answer = prompt(
+        "Enter your practice exit price for " +
+        tradeData.symbol +
+        ". Entry price: " +
+        tradeData.entryPrice
     );
 
-    let exitPrice = Number(input.value);
+    if (answer === null) return;
 
-    if (
-        !Number.isFinite(exitPrice) ||
-        exitPrice <= 0
-    ) {
+    const exitPrice = Number(answer);
 
+    if (!Number.isFinite(exitPrice) || exitPrice <= 0) {
         alert("Enter a valid exit price.");
-
         return;
-
     }
 
-    let direction =
-        tradeData.type === "BUY" ? 1 : -1;
+    let movement =
+        (exitPrice - tradeData.entryPrice) /
+        tradeData.entryPrice;
 
-    // SIMULATED PROFIT OR LOSS
-
-    let pnl =
-        (
-            (exitPrice - tradeData.entryPrice) /
-            tradeData.entryPrice
-        ) *
-        tradeData.amount *
-        direction;
-
-    // STOP LOSS CHECK
-
-    if (
-        tradeData.stopLoss > 0 &&
-        pnl <= -tradeData.stopLoss
-    ) {
-
-        pnl = -tradeData.stopLoss;
-
+    if (tradeData.type === "SELL") {
+        movement = -movement;
     }
 
-    // TAKE PROFIT CHECK
+    // Illustrative simulator calculation.
+    // This is NOT a real forex contract calculation.
 
-    else if (
-        tradeData.takeProfit > 0 &&
-        pnl >= tradeData.takeProfit
-    ) {
+    let profit = tradeData.amount * movement;
 
-        pnl = tradeData.takeProfit;
+    // Limit demo loss to the amount reserved for this trade.
+    profit = Math.max(-tradeData.amount, profit);
 
-    }
+    account.balance += tradeData.amount + profit;
+    account.totalPL += profit;
 
-    // LIMIT MAXIMUM LOSS TO TRADE AMOUNT
-
-    pnl = Math.max(
-        -tradeData.amount,
-        pnl
-    );
-
-    let result = tradeData.amount + pnl;
-
-    balance += result;
-
-    history.unshift({
-
+    account.history.unshift({
         symbol: tradeData.symbol,
-
         type: tradeData.type,
-
         amount: tradeData.amount,
-
-        profit: pnl,
-
         entryPrice: tradeData.entryPrice,
-
         exitPrice: exitPrice,
-
-        date: new Date().toISOString()
-
+        profit: profit,
+        date: new Date().toLocaleString()
     });
 
-    openTrades.splice(index, 1);
+    account.openTrades.splice(index, 1);
 
-    saveData();
-
-    updateBalance();
-
+    saveAccount();
+    updateDashboard();
     updateTrades();
-
     updateHistory();
 
-    alert(
-        "Demo trade closed!\n" +
-        (pnl >= 0 ? "Profit: $" : "Loss: $") +
-        Math.abs(pnl).toFixed(2)
-    );
+    const result = profit >= 0 ? "Profit: $" : "Loss: $";
 
+    alert(
+        "Demo trade closed.\n" +
+        result + Math.abs(profit).toFixed(2)
+    );
 }
 
-// =================================
 // DISPLAY OPEN TRADES
-// =================================
 
 function updateTrades() {
+    const container = document.getElementById("trades");
 
-    let container = document.getElementById("trades");
+    if (account.openTrades.length === 0) {
+        container.innerHTML =
+            '<p class="label">No open trades yet.</p>';
+        return;
+    }
 
     container.innerHTML = "";
 
-    if (openTrades.length === 0) {
-
-        container.innerHTML =
-            '<p class="label">No open trades yet.</p>';
-
-        return;
-
-    }
-
-    openTrades.forEach(t => {
-
-        let div = document.createElement("div");
+    account.openTrades.forEach(t => {
+        const div = document.createElement("div");
 
         div.className = "trade";
 
-        let title = document.createElement("strong");
+        const heading = document.createElement("strong");
+        heading.textContent = t.type + " " + t.symbol;
 
-        title.textContent =
-            t.type + " " + t.symbol;
+        const amount = document.createElement("p");
+        amount.textContent = "Amount: $" + t.amount.toFixed(2);
 
-        let amount = document.createElement("p");
+        const entry = document.createElement("p");
+        entry.textContent = "Entry price: " + t.entryPrice;
 
-        amount.textContent =
-            "Trade Amount: $" +
-            Number(t.amount).toFixed(2);
+        const date = document.createElement("p");
+        date.textContent = "Opened: " + t.date;
 
-        let entry = document.createElement("p");
+        const button = document.createElement("button");
+        button.className = "gray-button full-button";
+        button.textContent = "CLOSE DEMO TRADE";
+        button.onclick = () => closeTrade(t.id);
 
-        entry.textContent =
-            "Entry Price: " + t.entryPrice;
-
-        let sl = document.createElement("p");
-
-        sl.className = "red";
-
-        sl.textContent =
-            "Stop Loss: " +
-            (t.stopLoss > 0 ? "$" + t.stopLoss : "Disabled");
-
-        let tp = document.createElement("p");
-
-        tp.className = "green";
-
-        tp.textContent =
-            "Take Profit: " +
-            (t.takeProfit > 0 ? "$" + t.takeProfit : "Disabled");
-
-        let label = document.createElement("label");
-
-        label.textContent = "Demo Exit Price";
-
-        let exit = document.createElement("input");
-
-        exit.type = "number";
-
-        exit.id = "exit-" + t.id;
-
-        exit.step = "any";
-
-        exit.min = "0";
-
-        exit.value = t.entryPrice;
-
-        let button = document.createElement("button");
-
-        button.className = "close-button";
-
-        button.textContent = "CLOSE / CHECK TRADE";
-
-        button.onclick = function() {
-
-            closeTrade(t.id);
-
-        };
-
-        div.appendChild(title);
-
+        div.appendChild(heading);
         div.appendChild(amount);
-
         div.appendChild(entry);
-
-        div.appendChild(sl);
-
-        div.appendChild(tp);
-
-        div.appendChild(label);
-
-        div.appendChild(exit);
-
+        div.appendChild(date);
         div.appendChild(button);
 
         container.appendChild(div);
-
     });
-
 }
 
-// =================================
-// TRADING HISTORY
-// =================================
+// DISPLAY TRADING HISTORY
 
 function updateHistory() {
+    const container = document.getElementById("historyList");
 
-    let container = document.getElementById(
-        "historyList"
-    );
+    if (account.history.length === 0) {
+        container.innerHTML =
+            '<p class="label">Your closed trades will appear here.</p>';
+        return;
+    }
 
     container.innerHTML = "";
 
-    if (history.length === 0) {
-
-        container.innerHTML =
-            '<p class="label">Your trades will appear here.</p>';
-
-        return;
-
-    }
-
-    history.forEach(t => {
-
-        let div = document.createElement("div");
-
+    account.history.forEach(t => {
+        const div = document.createElement("div");
         div.className = "trade";
 
-        let title = document.createElement("strong");
+        const heading = document.createElement("strong");
+        heading.textContent = t.type + " " + t.symbol;
 
-        title.textContent =
-            t.type + " " + t.symbol;
+        const amount = document.createElement("p");
+        amount.textContent = "Trade amount: $" + t.amount.toFixed(2);
 
-        let amount = document.createElement("p");
+        const entry = document.createElement("p");
+        entry.textContent = "Entry: " + t.entryPrice;
 
-        amount.textContent =
-            "Trade Amount: $" +
-            Number(t.amount).toFixed(2);
+        const exit = document.createElement("p");
+        exit.textContent = "Exit: " + t.exitPrice;
 
-        let entry = document.createElement("p");
+        const result = document.createElement("p");
 
-        entry.textContent =
-            "Entry Price: " + t.entryPrice;
+        result.textContent =
+            (t.profit >= 0 ? "Profit: +$" : "Loss: -$") +
+            Math.abs(t.profit).toFixed(2);
 
-        let exit = document.createElement("p");
+        result.className =
+            t.profit >= 0 ? "positive" : "negative";
 
-        exit.textContent =
-            "Exit Price: " + t.exitPrice;
+        const date = document.createElement("p");
+        date.textContent = t.date;
 
-        let profit = document.createElement("p");
-
-        profit.className =
-            t.profit >= 0 ? "green" : "red";
-
-        profit.textContent =
-            (t.profit >= 0 ? "Profit: $" : "Loss: $") +
-            Math.abs(Number(t.profit)).toFixed(2);
-
-        let date = document.createElement("p");
-
-        date.className = "small";
-
-        date.textContent =
-            new Date(t.date).toLocaleString();
-
-        div.appendChild(title);
-
+        div.appendChild(heading);
         div.appendChild(amount);
-
         div.appendChild(entry);
-
         div.appendChild(exit);
-
-        div.appendChild(profit);
-
+        div.appendChild(result);
         div.appendChild(date);
 
         container.appendChild(div);
-
     });
-
 }
 
-// =================================
-// START APPLICATION
-// =================================
+// TRADINGVIEW CHART
 
-loadData();
+function changeChart() {
+    const chart = document.getElementById("chart");
 
-updateBalance();
+    chart.innerHTML = "";
 
+    if (typeof TradingView === "undefined") {
+        chart.textContent =
+            "TradingView chart could not load. Check your internet connection.";
+        return;
+    }
+
+    new TradingView.widget({
+        width: "100%",
+        height: 400,
+        symbol: document.getElementById("symbol").value,
+        interval: "15",
+        timezone: "Africa/Nairobi",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        toolbar_bg: "#111827",
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        allow_symbol_change: false,
+        container_id: "chart"
+    });
+}
+
+// START WEBSITE
+
+updateDashboard();
 updateTrades();
-
 updateHistory();
-
 changeChart();
 
 </script>
 
 </body>
-    </html>
-    
+</html>
