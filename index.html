@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXORA FX Trading</title>
+<title>NEXORA FX</title>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 
@@ -27,6 +27,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .logo {
@@ -35,14 +37,16 @@ header {
     font-weight: bold;
 }
 
-header a {
+nav a {
     color: white;
     text-decoration: none;
     margin-left: 12px;
 }
 
 .container {
-    padding: 18px;
+    padding: 16px;
+    max-width: 900px;
+    margin: auto;
 }
 
 .card {
@@ -52,10 +56,12 @@ header a {
     margin-bottom: 18px;
 }
 
-.balance {
-    color: #00d4aa;
-    font-size: 30px;
-    margin-top: 10px;
+h2 {
+    margin-bottom: 15px;
+}
+
+h3 {
+    margin: 18px 0 12px;
 }
 
 .label {
@@ -63,25 +69,38 @@ header a {
     font-size: 14px;
 }
 
-h2 {
-    margin-bottom: 15px;
-}
-
-select, input {
-    width: 100%;
-    background: #1f2937;
-    color: white;
-    padding: 14px;
-    border: 1px solid #374151;
-    border-radius: 8px;
+.balance {
+    color: #00d4aa;
+    font-size: 30px;
     margin: 10px 0;
 }
 
-#chart {
-    height: 400px;
+.market {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px;
+    background: #1f2937;
+    border-radius: 8px;
+    margin-bottom: 9px;
+}
+
+input, select {
     width: 100%;
-    border-radius: 10px;
+    padding: 14px;
+    margin: 9px 0 15px;
+    background: #1f2937;
+    color: white;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+#chart {
+    width: 100%;
+    height: 400px;
     overflow: hidden;
+    border-radius: 10px;
+    background: #000;
 }
 
 .buttons {
@@ -91,13 +110,17 @@ select, input {
 }
 
 button {
-    width: 50%;
     border: none;
-    padding: 16px;
+    padding: 15px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     color: white;
+    cursor: pointer;
+}
+
+.buttons button {
+    width: 50%;
 }
 
 .buy {
@@ -108,38 +131,17 @@ button {
     background: #e74c3c;
 }
 
-.market {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
-    background: #1f2937;
-    border-radius: 8px;
-    margin-bottom: 10px;
+.close-button {
+    width: 100%;
+    background: #374151;
+    margin-top: 12px;
 }
 
 .trade {
     background: #1f2937;
     padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.close-button {
-    background: #374151;
-    width: 100%;
-    margin-top: 10px;
-}
-
-footer {
-    text-align: center;
-    color: #6b7280;
-    padding: 25px;
-}
-
-.small {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-top: 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
 }
 
 .green {
@@ -148,6 +150,33 @@ footer {
 
 .red {
     color: #e74c3c;
+}
+
+.small {
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #9ca3af;
+    padding: 25px;
+}
+
+@media(max-width: 450px) {
+    .container {
+        padding: 12px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    #chart {
+        height: 350px;
+    }
 }
 </style>
 </head>
@@ -160,42 +189,61 @@ footer {
     <nav>
         <a href="#dashboard">Home</a>
         <a href="#trading">Trade</a>
+        <a href="#history">History</a>
     </nav>
 </header>
 
 <div class="container">
 
+<!-- DASHBOARD -->
+
 <section class="card" id="dashboard">
+
     <p class="label">DEMO ACCOUNT BALANCE</p>
 
-    <h1 class="balance" id="accountBalance">$10,000.00</h1>
+    <h1 class="balance" id="accountBalance">
+        $10,000.00
+    </h1>
 
-    <p class="label">Virtual funds for practice trading</p>
+    <p class="label">
+        Virtual funds for practice trading
+    </p>
+
 </section>
 
+<!-- MARKETS -->
+
 <section class="card">
+
     <h2>Markets</h2>
 
     <div class="market">
         <span>EUR/USD</span>
-        <span>1.08425</span>
+        <strong>1.08425</strong>
     </div>
 
     <div class="market">
         <span>GBP/USD</span>
-        <span>1.27150</span>
+        <strong>1.27150</strong>
     </div>
 
     <div class="market">
         <span>USD/JPY</span>
-        <span>149.825</span>
+        <strong>149.825</strong>
     </div>
 
     <div class="market">
         <span>XAU/USD</span>
-        <span>2650.50</span>
+        <strong>2650.50</strong>
     </div>
+
+    <p class="small">
+        These are sample reference prices, not live quotes.
+    </p>
+
 </section>
+
+<!-- TRADING TERMINAL -->
 
 <section class="card" id="trading">
 
@@ -204,15 +252,22 @@ footer {
     <label>Select Market</label>
 
     <select id="symbol" onchange="changeChart()">
+
         <option value="FX:EURUSD">EUR/USD</option>
+
         <option value="FX:GBPUSD">GBP/USD</option>
+
         <option value="FX:USDJPY">USD/JPY</option>
-        <option value="OANDA:XAUUSD">Gold (XAU/USD)</option>
+
+        <option value="OANDA:XAUUSD">
+            Gold (XAU/USD)
+        </option>
+
     </select>
 
     <div id="chart"></div>
 
-    <h3 style="margin-top:20px;">Demo Trade</h3>
+    <h3>Demo Trade</h3>
 
     <label>Trade Amount ($)</label>
 
@@ -221,24 +276,51 @@ footer {
         id="amount"
         value="10"
         min="1"
-        step="1"
+        step="0.01"
+    >
+
+    <label>Stop Loss ($)</label>
+
+    <input
+        type="number"
+        id="stopLoss"
+        value="2"
+        min="0"
+        step="0.01"
+    >
+
+    <label>Take Profit ($)</label>
+
+    <input
+        type="number"
+        id="takeProfit"
+        value="4"
+        min="0"
+        step="0.01"
     >
 
     <div class="buttons">
-        <button class="buy" onclick="trade('BUY')">
+
+        <button class="buy"
+            onclick="trade('BUY')">
             BUY
         </button>
 
-        <button class="sell" onclick="trade('SELL')">
+        <button class="sell"
+            onclick="trade('SELL')">
             SELL
         </button>
+
     </div>
 
     <p class="small">
         Demo trading only. No real money is involved.
+        Stop Loss and Take Profit are measured in virtual dollars.
     </p>
 
 </section>
+
+<!-- OPEN TRADES -->
 
 <section class="card">
 
@@ -250,12 +332,16 @@ footer {
 
 </section>
 
-<section class="card">
+<!-- HISTORY -->
+
+<section class="card" id="history">
 
     <h2>Trading History</h2>
 
-    <div id="history">
-        <p class="label">Your trades will appear here.</p>
+    <div id="historyList">
+        <p class="label">
+            Your trades will appear here.
+        </p>
     </div>
 
 </section>
@@ -263,27 +349,43 @@ footer {
 </div>
 
 <footer>
-    <p>NEXORA FX</p>
+
+    <p class="logo">NEXORA FX</p>
+
     <p>Demo Trading Platform</p>
+
     <p class="small">
         This website is a trading simulator.
-        It does not execute real financial trades.
+        It does not execute real financial trades
+        or connect to a broker.
     </p>
+
 </footer>
 
 <script>
 
-// STORAGE KEY
+// =================================
+// ACCOUNT STORAGE
+// =================================
 
-const STORAGE_KEY = "nexoraFX_data";
-
-// ACCOUNT DATA
+const STORAGE_KEY = "nexoraFX_v2_data";
 
 let balance = 10000;
+
 let openTrades = [];
+
 let history = [];
 
-// LOAD SAVED DATA
+const marketPrices = {
+    "FX:EURUSD": 1.08425,
+    "FX:GBPUSD": 1.27150,
+    "FX:USDJPY": 149.825,
+    "OANDA:XAUUSD": 2650.50
+};
+
+// =================================
+// LOAD ACCOUNT
+// =================================
 
 function loadData() {
 
@@ -301,21 +403,28 @@ function loadData() {
                 Array.isArray(data.openTrades) &&
                 Array.isArray(data.history)
             ) {
+
                 balance = data.balance;
+
                 openTrades = data.openTrades;
+
                 history = data.history;
+
             }
+
         }
 
     } catch (error) {
 
-        console.log("Could not load saved data:", error);
+        console.log("Loading error:", error);
 
     }
 
 }
 
-// SAVE DATA
+// =================================
+// SAVE ACCOUNT
+// =================================
 
 function saveData() {
 
@@ -332,7 +441,84 @@ function saveData() {
 
     } catch (error) {
 
-        alert("Could not save your account data.");
+        console.log("Saving error:", error);
+
+        alert("Could not save account data.");
+
+    }
+
+}
+
+// =================================
+// UPDATE BALANCE
+// =================================
+
+function updateBalance() {
+
+    document.getElementById(
+        "accountBalance"
+    ).textContent = "$" + balance.toFixed(2);
+
+}
+
+// =================================
+// TRADINGVIEW CHART
+// =================================
+
+function changeChart() {
+
+    let symbol = document.getElementById(
+        "symbol"
+    ).value;
+
+    let chart = document.getElementById("chart");
+
+    chart.innerHTML = "";
+
+    if (typeof TradingView === "undefined") {
+
+        chart.textContent =
+            "Chart unavailable. Check your internet connection.";
+
+        return;
+
+    }
+
+    try {
+
+        new TradingView.widget({
+
+            width: "100%",
+
+            height: 400,
+
+            symbol: symbol,
+
+            interval: "15",
+
+            timezone: "Africa/Nairobi",
+
+            theme: "dark",
+
+            style: "1",
+
+            locale: "en",
+
+            toolbar_bg: "#111827",
+
+            enable_publishing: false,
+
+            hide_top_toolbar: false,
+
+            allow_symbol_change: false,
+
+            container_id: "chart"
+
+        });
+
+    } catch (error) {
+
+        chart.textContent = "Unable to load chart.";
 
         console.log(error);
 
@@ -340,53 +526,9 @@ function saveData() {
 
 }
 
-// UPDATE ACCOUNT DISPLAY
-
-function updateBalance() {
-
-    document.getElementById("accountBalance").innerText =
-        "$" + balance.toFixed(2);
-
-}
-
-// TRADING CHART
-
-function changeChart() {
-
-    let symbol = document.getElementById("symbol").value;
-
-    document.getElementById("chart").innerHTML = "";
-
-    if (typeof TradingView === "undefined") {
-
-        document.getElementById("chart").innerText =
-            "Chart unavailable. Check your internet connection.";
-
-        return;
-
-    }
-
-    new TradingView.widget({
-
-        "width": "100%",
-        "height": 400,
-        "symbol": symbol,
-        "interval": "15",
-        "timezone": "Africa/Nairobi",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#111827",
-        "enable_publishing": false,
-        "hide_top_toolbar": false,
-        "allow_symbol_change": false,
-        "container_id": "chart"
-
-    });
-
-}
-
+// =================================
 // OPEN DEMO TRADE
+// =================================
 
 function trade(type) {
 
@@ -394,11 +536,43 @@ function trade(type) {
         document.getElementById("amount").value
     );
 
+    let stopLoss = Number(
+        document.getElementById("stopLoss").value
+    );
+
+    let takeProfit = Number(
+        document.getElementById("takeProfit").value
+    );
+
     let symbol = document.getElementById("symbol").value;
 
-    if (!Number.isFinite(amount) || amount <= 0) {
+    if (
+        !Number.isFinite(amount) ||
+        amount <= 0
+    ) {
 
         alert("Enter a valid trade amount.");
+
+        return;
+
+    }
+
+    if (
+        !Number.isFinite(stopLoss) ||
+        !Number.isFinite(takeProfit) ||
+        stopLoss < 0 ||
+        takeProfit < 0
+    ) {
+
+        alert("Enter valid Stop Loss and Take Profit values.");
+
+        return;
+
+    }
+
+    if (stopLoss > amount) {
+
+        alert("Stop Loss cannot exceed your trade amount.");
 
         return;
 
@@ -412,17 +586,27 @@ function trade(type) {
 
     }
 
-    balance -= amount;
-
     let tradeData = {
 
-        id: Date.now(),
+        id: Date.now() + Math.random(),
+
         symbol: symbol,
+
         type: type,
+
         amount: amount,
+
+        stopLoss: stopLoss,
+
+        takeProfit: takeProfit,
+
+        entryPrice: marketPrices[symbol],
+
         date: new Date().toISOString()
 
     };
+
+    balance -= amount;
 
     openTrades.push(tradeData);
 
@@ -432,36 +616,103 @@ function trade(type) {
 
     updateTrades();
 
-    alert(type + " demo trade opened successfully!");
+    alert(
+        type + " demo trade opened successfully!"
+    );
 
 }
 
+// =================================
 // CLOSE DEMO TRADE
+// =================================
 
 function closeTrade(id) {
 
     let index = openTrades.findIndex(
-        t => t.id === id
+        t => String(t.id) === String(id)
     );
 
     if (index === -1) return;
 
     let tradeData = openTrades[index];
 
-    // SIMULATED PROFIT FOR DEMO PURPOSES
+    let input = document.getElementById(
+        "exit-" + id
+    );
 
-    let profit = Math.random() * tradeData.amount * 0.04;
+    let exitPrice = Number(input.value);
 
-    let result = tradeData.amount + profit;
+    if (
+        !Number.isFinite(exitPrice) ||
+        exitPrice <= 0
+    ) {
+
+        alert("Enter a valid exit price.");
+
+        return;
+
+    }
+
+    let direction =
+        tradeData.type === "BUY" ? 1 : -1;
+
+    // SIMULATED PROFIT OR LOSS
+
+    let pnl =
+        (
+            (exitPrice - tradeData.entryPrice) /
+            tradeData.entryPrice
+        ) *
+        tradeData.amount *
+        direction;
+
+    // STOP LOSS CHECK
+
+    if (
+        tradeData.stopLoss > 0 &&
+        pnl <= -tradeData.stopLoss
+    ) {
+
+        pnl = -tradeData.stopLoss;
+
+    }
+
+    // TAKE PROFIT CHECK
+
+    else if (
+        tradeData.takeProfit > 0 &&
+        pnl >= tradeData.takeProfit
+    ) {
+
+        pnl = tradeData.takeProfit;
+
+    }
+
+    // LIMIT MAXIMUM LOSS TO TRADE AMOUNT
+
+    pnl = Math.max(
+        -tradeData.amount,
+        pnl
+    );
+
+    let result = tradeData.amount + pnl;
 
     balance += result;
 
     history.unshift({
 
         symbol: tradeData.symbol,
+
         type: tradeData.type,
+
         amount: tradeData.amount,
-        profit: profit,
+
+        profit: pnl,
+
+        entryPrice: tradeData.entryPrice,
+
+        exitPrice: exitPrice,
+
         date: new Date().toISOString()
 
     });
@@ -477,17 +728,22 @@ function closeTrade(id) {
     updateHistory();
 
     alert(
-        "Demo trade closed!\nProfit: $" +
-        profit.toFixed(2)
+        "Demo trade closed!\n" +
+        (pnl >= 0 ? "Profit: $" : "Loss: $") +
+        Math.abs(pnl).toFixed(2)
     );
 
 }
 
+// =================================
 // DISPLAY OPEN TRADES
+// =================================
 
 function updateTrades() {
 
     let container = document.getElementById("trades");
+
+    container.innerHTML = "";
 
     if (openTrades.length === 0) {
 
@@ -498,8 +754,6 @@ function updateTrades() {
 
     }
 
-    container.innerHTML = "";
-
     openTrades.forEach(t => {
 
         let div = document.createElement("div");
@@ -508,25 +762,78 @@ function updateTrades() {
 
         let title = document.createElement("strong");
 
-        title.textContent = t.type + " " + t.symbol;
+        title.textContent =
+            t.type + " " + t.symbol;
 
         let amount = document.createElement("p");
 
         amount.textContent =
-            "Amount: $" + Number(t.amount).toFixed(2);
+            "Trade Amount: $" +
+            Number(t.amount).toFixed(2);
+
+        let entry = document.createElement("p");
+
+        entry.textContent =
+            "Entry Price: " + t.entryPrice;
+
+        let sl = document.createElement("p");
+
+        sl.className = "red";
+
+        sl.textContent =
+            "Stop Loss: " +
+            (t.stopLoss > 0 ? "$" + t.stopLoss : "Disabled");
+
+        let tp = document.createElement("p");
+
+        tp.className = "green";
+
+        tp.textContent =
+            "Take Profit: " +
+            (t.takeProfit > 0 ? "$" + t.takeProfit : "Disabled");
+
+        let label = document.createElement("label");
+
+        label.textContent = "Demo Exit Price";
+
+        let exit = document.createElement("input");
+
+        exit.type = "number";
+
+        exit.id = "exit-" + t.id;
+
+        exit.step = "any";
+
+        exit.min = "0";
+
+        exit.value = t.entryPrice;
 
         let button = document.createElement("button");
 
         button.className = "close-button";
 
-        button.textContent = "CLOSE TRADE";
+        button.textContent = "CLOSE / CHECK TRADE";
 
         button.onclick = function() {
+
             closeTrade(t.id);
+
         };
 
         div.appendChild(title);
+
         div.appendChild(amount);
+
+        div.appendChild(entry);
+
+        div.appendChild(sl);
+
+        div.appendChild(tp);
+
+        div.appendChild(label);
+
+        div.appendChild(exit);
+
         div.appendChild(button);
 
         container.appendChild(div);
@@ -535,11 +842,17 @@ function updateTrades() {
 
 }
 
-// DISPLAY TRADING HISTORY
+// =================================
+// TRADING HISTORY
+// =================================
 
 function updateHistory() {
 
-    let container = document.getElementById("history");
+    let container = document.getElementById(
+        "historyList"
+    );
+
+    container.innerHTML = "";
 
     if (history.length === 0) {
 
@@ -550,8 +863,6 @@ function updateHistory() {
 
     }
 
-    container.innerHTML = "";
-
     history.forEach(t => {
 
         let div = document.createElement("div");
@@ -560,24 +871,52 @@ function updateHistory() {
 
         let title = document.createElement("strong");
 
-        title.textContent = t.type + " " + t.symbol;
+        title.textContent =
+            t.type + " " + t.symbol;
 
         let amount = document.createElement("p");
 
         amount.textContent =
-            "Amount: $" + Number(t.amount).toFixed(2);
+            "Trade Amount: $" +
+            Number(t.amount).toFixed(2);
+
+        let entry = document.createElement("p");
+
+        entry.textContent =
+            "Entry Price: " + t.entryPrice;
+
+        let exit = document.createElement("p");
+
+        exit.textContent =
+            "Exit Price: " + t.exitPrice;
 
         let profit = document.createElement("p");
 
-        profit.className = "green";
+        profit.className =
+            t.profit >= 0 ? "green" : "red";
 
         profit.textContent =
-            "Simulated Profit: $" +
-            Number(t.profit).toFixed(2);
+            (t.profit >= 0 ? "Profit: $" : "Loss: $") +
+            Math.abs(Number(t.profit)).toFixed(2);
+
+        let date = document.createElement("p");
+
+        date.className = "small";
+
+        date.textContent =
+            new Date(t.date).toLocaleString();
 
         div.appendChild(title);
+
         div.appendChild(amount);
+
+        div.appendChild(entry);
+
+        div.appendChild(exit);
+
         div.appendChild(profit);
+
+        div.appendChild(date);
 
         container.appendChild(div);
 
@@ -585,7 +924,9 @@ function updateHistory() {
 
 }
 
+// =================================
 // START APPLICATION
+// =================================
 
 loadData();
 
@@ -600,4 +941,5 @@ changeChart();
 </script>
 
 </body>
-</html>
+    </html>
+    
