@@ -32,7 +32,6 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 <h1>NEXORA FX</h1><p class="subtitle">Your trading practice platform</p>
 <div class="auth-tabs"><button class="btn btn-green" id="loginTab" onclick="showAuth('login')">LOGIN</button><button class="btn btn-gray" id="registerTab" onclick="showAuth('register')">REGISTER</button></div>
 <form id="authForm">
-<div id="nameField" class="hidden"><label>Full name</label><input id="fullName" type="text" placeholder="Your full name"></div>
 <label>Email address</label><input id="email" type="email" required placeholder="Enter your email">
 <label>Password</label><input id="password" type="password" required minlength="6" placeholder="At least 6 characters">
 <button class="btn btn-green btn-full" id="authSubmit" type="submit">LOGIN</button>
@@ -60,7 +59,7 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 <section class="page" id="positions"><h1 class="page-title">Open Positions</h1><p class="subtitle">Manage your simulated open trades.</p><div class="panel" id="positionsList">No open positions.</div></section>
 <section class="page" id="history"><h1 class="page-title">Trade History</h1><p class="subtitle">Your completed demo trades.</p><div class="panel table-wrap"><table><thead><tr><th>Market</th><th>Side</th><th>Amount</th><th>Result</th><th>Date</th></tr></thead><tbody id="historyList"><tr><td colspan="5">No trade history yet.</td></tr></tbody></table></div></section>
 <section class="page" id="wallet"><h1 class="page-title">My Wallet</h1><p class="subtitle">Manage your virtual practice funds.</p><div class="grid"><div class="panel"><div class="stat-label">Demo Balance</div><div class="stat-value" id="walletBalance">$10,000.00</div></div><div class="panel"><div class="stat-label">Account Number</div><div class="stat-value account-number" id="walletId">--</div></div></div><div class="panel"><h2 class="section-title">Add Demo Funds</h2><label>Amount ($)</label><input type="number" id="depositAmount" min="1" step="0.01" placeholder="Enter amount"><button class="btn btn-green btn-full" onclick="demoDeposit()">ADD DEMO FUNDS</button></div><div class="panel"><h2 class="section-title">Withdraw Demo Funds</h2><label>Amount ($)</label><input type="number" id="withdrawAmount" min="1" step="0.01" placeholder="Enter amount"><button class="btn btn-red btn-full" onclick="demoWithdraw()">WITHDRAW DEMO FUNDS</button></div><div class="panel"><h2 class="section-title">Wallet Activity</h2><div id="walletHistory">No wallet activity yet.</div></div></section>
-<section class="page" id="profile"><h1 class="page-title">My Account</h1><p class="subtitle">Your NEXORA FX account information.</p><div class="panel"><h2 class="section-title">Account Details</h2><p class="stat-label">Full name</p><p id="profileName" style="margin:8px 0 20px">--</p><p class="stat-label">Email address</p><p id="profileEmail" style="margin:8px 0 20px">--</p><p class="stat-label">Demo account ID</p><p class="account-number" id="profileId" style="margin:8px 0 20px">--</p><p class="stat-label">Registration date</p><p id="profileDate" style="margin:8px 0 20px">--</p><p class="stat-label">Account type</p><p style="margin:8px 0 20px">Practice / Demo</p><button class="btn btn-gray" onclick="resetDemo()">RESET DEMO ACCOUNT</button></div></section>
+<section class="page" id="profile"><h1 class="page-title">My Account</h1><p class="subtitle">Your NEXORA FX account information.</p><div class="panel"><h2 class="section-title">Account Details</h2><p class="stat-label">Display name</p><p style="margin:8px 0 20px">Not displayed</p><p class="stat-label">Email address</p><p id="profileEmail" style="margin:8px 0 20px">--</p><p class="stat-label">Demo account ID</p><p class="account-number" id="profileId" style="margin:8px 0 20px">--</p><p class="stat-label">Registration date</p><p id="profileDate" style="margin:8px 0 20px">--</p><p class="stat-label">Account type</p><p style="margin:8px 0 20px">Practice / Demo</p><button class="btn btn-gray" onclick="resetDemo()">RESET DEMO ACCOUNT</button></div></section>
 <footer>NEXORA FX · Practice. Learn. Improve.<br>Independent demo simulator. Not a broker or investment service.</footer>
 </main></div>
 <nav class="bottom-nav"><button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦<br>Home</button><button data-page="markets" onclick="goPage('markets')">◈<br>Markets</button><button data-page="trade" onclick="goPage('trade')">↗<br>Trade</button><button data-page="positions" onclick="goPage('positions')">▤<br>Positions</button><button data-page="wallet" onclick="goPage('wallet')">▣<br>Wallet</button></nav>
@@ -107,16 +106,12 @@ document.getElementById("authForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const msg=document.getElementById("authMessage"),btn=document.getElementById("authSubmit");
  const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;
- const fullName=document.getElementById("fullName").value.trim();
  btn.disabled=true;btn.textContent="PLEASE WAIT...";msg.textContent="";
  try{
   if(authMode==="register"){
-   if(!fullName)throw new Error("Please enter your full name.");
    const result=await auth.createUserWithEmailAndPassword(email,password);
-   await result.user.updateProfile({displayName:fullName});
    const profile={
     uid:result.user.uid,
-    fullName:fullName,
     email:result.user.email,
     createdAt:firebase.firestore.FieldValue.serverTimestamp(),
     demoBalance:10000,
@@ -150,13 +145,11 @@ auth.onAuthStateChanged(async user=>{
   screen.classList.add("hidden");
   document.getElementById("userEmail").textContent=user.email||"";
   document.getElementById("profileEmail").textContent=user.email||"--";
-  document.getElementById("profileName").textContent=user.displayName||"--";
-  document.getElementById("profileId").textContent=user.uid.slice(0,12).toUpperCase();
+   document.getElementById("profileId").textContent=user.uid.slice(0,12).toUpperCase();
   try{
    const snap=await db.collection("users").doc(user.uid).get();
    if(snap.exists){
     profileData=snap.data();
-    if(profileData.fullName)document.getElementById("profileName").textContent=profileData.fullName;
     if(profileData.createdAt&&profileData.createdAt.toDate)document.getElementById("profileDate").textContent=profileData.createdAt.toDate().toLocaleString();
     else document.getElementById("profileDate").textContent="Saved";
    }else{
