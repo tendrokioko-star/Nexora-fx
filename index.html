@@ -30,6 +30,7 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 .close-modal{position:fixed;inset:0;background:#000a;z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
 .close-modal.show{display:flex}.close-modal-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 20px 60px #0009}
 .close-modal-card h2{font-size:19px;margin-bottom:8px}.close-modal-card p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:17px}.modal-actions{display:flex;gap:10px}.modal-actions button{flex:1}
+.live-status{display:inline-block;padding:7px 11px;border-radius:20px;border:1px solid #d7a64b;color:#f0c76e;font-size:11px;font-weight:bold}.live-info{background:#172638;border:1px solid #344a63;border-radius:10px;padding:15px;margin:12px 0;color:var(--muted);font-size:13px;line-height:1.6}.live-info strong{color:var(--text)}
 </style>
 </head>
 <body>
@@ -58,10 +59,10 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 <p id="authMessage" class="auth-message"></p><p class="subtitle">Demo trading only. No real-money transactions.</p>
 </div></div>
 
-<header class="topbar"><div class="logo">NEXORA FX</div><div class="top-actions"><span class="demo-tag">DEMO ACCOUNT</span><span class="user-email" id="userEmail">Not signed in</span><button class="btn btn-gray" onclick="logout()">Logout</button></div></header>
+<header class="topbar"><div class="logo">NEXORA FX</div><div class="top-actions"><span class="demo-tag">DEMO ACCOUNT</span><button class="btn btn-blue" type="button" onclick="goPage('live')">LIVE ACCOUNT</button><span class="user-email" id="userEmail">Not signed in</span><button class="btn btn-gray" onclick="logout()">Logout</button></div></header>
 <div class="layout">
 <aside class="sidebar">
-<button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦ Dashboard</button><button data-page="markets" onclick="goPage('markets')">◈ Markets</button><button data-page="trade" onclick="goPage('trade')">↗ Trade</button><button data-page="positions" onclick="goPage('positions')">▤ Open Positions</button><button data-page="history" onclick="goPage('history')">◷ Trade History</button><button data-page="wallet" onclick="goPage('wallet')">▣ Wallet</button><button data-page="profile" onclick="goPage('profile')">♙ My Account</button>
+<button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦ Dashboard</button><button data-page="markets" onclick="goPage('markets')">◈ Markets</button><button data-page="trade" onclick="goPage('trade')">↗ Trade</button><button data-page="positions" onclick="goPage('positions')">▤ Open Positions</button><button data-page="history" onclick="goPage('history')">◷ Trade History</button><button data-page="wallet" onclick="goPage('wallet')">▣ Wallet</button><button data-page="live" onclick="goPage('live')">◉ Live Account</button><button data-page="profile" onclick="goPage('profile')">♙ My Account</button>
 </aside>
 <main class="main">
 <div class="notice"><strong>DEMO PLATFORM:</strong> NEXORA FX is a practice simulator. All balances, deposits, withdrawals and trades are virtual. No real broker orders or money transfers are made.</div>
@@ -77,10 +78,30 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 <section class="page" id="positions"><h1 class="page-title">Open Positions</h1><p class="subtitle">Manage your simulated open trades.</p><div class="panel" id="positionsList">No open positions.</div></section>
 <section class="page" id="history"><h1 class="page-title">Trade History</h1><p class="subtitle">Your completed demo trades.</p><div class="panel table-wrap"><table><thead><tr><th>Market</th><th>Side</th><th>Amount</th><th>Result</th><th>Date</th></tr></thead><tbody id="historyList"><tr><td colspan="5">No trade history yet.</td></tr></tbody></table></div></section>
 <section class="page" id="wallet"><h1 class="page-title">My Wallet</h1><p class="subtitle">Manage your virtual practice funds.</p><div class="grid"><div class="panel"><div class="stat-label">Demo Balance</div><div class="stat-value" id="walletBalance">$10,000.00</div></div><div class="panel"><div class="stat-label">Account Number</div><div class="stat-value account-number" id="walletId">--</div></div></div><div class="panel"><h2 class="section-title">Add Demo Funds</h2><label>Amount ($)</label><input type="number" id="depositAmount" min="1" step="0.01" placeholder="Enter amount"><button class="btn btn-green btn-full" onclick="demoDeposit()">ADD DEMO FUNDS</button></div><div class="panel"><h2 class="section-title">Withdraw Demo Funds</h2><label>Amount ($)</label><input type="number" id="withdrawAmount" min="1" step="0.01" placeholder="Enter amount"><button class="btn btn-red btn-full" onclick="demoWithdraw()">WITHDRAW DEMO FUNDS</button></div><div class="panel"><h2 class="section-title">Wallet Activity</h2><div id="walletHistory">No wallet activity yet.</div></div></section>
+
+<section class="page" id="live">
+<h1 class="page-title">Live Account</h1>
+<p class="subtitle">Your separate NEXORA FX live-account area.</p>
+<div class="panel">
+ <div class="row"><h2 class="section-title">Live account status</h2><span class="live-status" id="liveStatus">NOT ACTIVE</span></div>
+ <div class="grid">
+  <div class="panel"><div class="stat-label">Account currency</div><div class="stat-value">USD ($)</div></div>
+  <div class="panel"><div class="stat-label">Account type</div><div class="stat-value">Live</div></div>
+ </div>
+ <div class="live-info" id="liveStatusDetail"><strong>Not activated.</strong> You can request setup of your live-account profile. This request does not open a brokerage account or enable real-money trading.</div>
+ <button class="btn btn-blue btn-full" id="liveRequestButton" type="button" onclick="requestLiveAccountSetup()">REQUEST LIVE ACCOUNT SETUP</button>
+</div>
+<div class="panel">
+ <h2 class="section-title">Important information</h2>
+ <p class="subtitle">The live account is being prepared as a separate feature. Real deposits, withdrawals and trading are not available yet. NEXORA FX must first have the required regulatory authorisation, secure payment arrangements and real trade-execution infrastructure.</p>
+ <div class="notice">Do not send money to anyone claiming to fund or activate a NEXORA FX live account. This page does not accept payments and does not execute real trades.</div>
+</div>
+</section>
+
 <section class="page" id="profile"><h1 class="page-title">My Account</h1><p class="subtitle">Your NEXORA FX account information.</p><div class="panel"><h2 class="section-title">Account Details</h2><p class="stat-label">Display name</p><p style="margin:8px 0 20px">Not displayed</p><p class="stat-label">Email address</p><p id="profileEmail" style="margin:8px 0 20px">--</p><p class="stat-label">Demo account ID</p><p class="account-number" id="profileId" style="margin:8px 0 20px">--</p><p class="stat-label">Registration date</p><p id="profileDate" style="margin:8px 0 20px">--</p><p class="stat-label">Account type</p><p style="margin:8px 0 20px">Practice / Demo</p><button class="btn btn-gray" onclick="resetDemo()">RESET DEMO ACCOUNT</button></div></section>
 <footer>NEXORA FX · Practice. Learn. Improve.<br>Independent demo simulator. Not a broker or investment service.</footer>
 </main></div>
-<nav class="bottom-nav"><button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦<br>Home</button><button data-page="markets" onclick="goPage('markets')">◈<br>Markets</button><button data-page="trade" onclick="goPage('trade')">↗<br>Trade</button><button data-page="positions" onclick="goPage('positions')">▤<br>Positions</button><button data-page="wallet" onclick="goPage('wallet')">▣<br>Wallet</button></nav>
+<nav class="bottom-nav"><button class="active" data-page="dashboard" onclick="goPage('dashboard')">▦<br>Home</button><button data-page="markets" onclick="goPage('markets')">◈<br>Markets</button><button data-page="trade" onclick="goPage('trade')">↗<br>Trade</button><button data-page="positions" onclick="goPage('positions')">▤<br>Positions</button><button data-page="wallet" onclick="goPage('wallet')">▣<br>Wallet</button><button data-page="live" onclick="goPage('live')">◉<br>Live</button></nav>
 
 <script>
 const firebaseConfig={
@@ -99,7 +120,6 @@ let currentUser=null,authMode="login",balance=10000,positions=[],history=[],wall
 
 function showAuth(mode){
  authMode=mode;
- document.getElementById("nameField").classList.toggle("hidden",mode!=="register");
  document.getElementById("forgotButton").classList.toggle("hidden",mode!=="login");
  document.getElementById("loginTab").className="btn "+(mode==="login"?"btn-green":"btn-gray");
  document.getElementById("registerTab").className="btn "+(mode==="register"?"btn-green":"btn-gray");
@@ -174,12 +194,52 @@ auth.onAuthStateChanged(async user=>{
     document.getElementById("profileDate").textContent="Profile record not found";
    }
   }catch(err){console.error("Profile read error:",err);document.getElementById("profileDate").textContent="Could not load profile";}
+  updateLiveAccountUI();
   loadDemo();render();drawChart();
  }else{
   screen.classList.remove("hidden");
   document.getElementById("userEmail").textContent="Not signed in";
  }
 });
+
+function updateLiveAccountUI(){
+ const live=profileData&&profileData.liveAccount;
+ const requested=Boolean(live&&live.status==="setup_requested");
+ const status=document.getElementById("liveStatus");
+ const detail=document.getElementById("liveStatusDetail");
+ const button=document.getElementById("liveRequestButton");
+ if(!status||!detail||!button)return;
+ status.textContent=requested?"SETUP REQUESTED":"NOT ACTIVE";
+ detail.innerHTML=requested
+  ?"<strong>Setup request saved.</strong> Your request is recorded in your account profile. This is not approval or activation, and real deposits and trading remain unavailable."
+  :"<strong>Not activated.</strong> You can request setup of your live-account profile. This request does not open a brokerage account or enable real-money trading.";
+ button.textContent=requested?"REQUEST SAVED":"REQUEST LIVE ACCOUNT SETUP";
+ button.disabled=requested;
+}
+async function requestLiveAccountSetup(){
+ if(!currentUser){notify("Please log in first.",true);return;}
+ if(profileData&&profileData.liveAccount&&profileData.liveAccount.status==="setup_requested"){
+  notify("Your live-account setup request has already been saved.");return;
+ }
+ const button=document.getElementById("liveRequestButton");
+ button.disabled=true;button.textContent="SAVING REQUEST...";
+ try{
+  await db.collection("users").doc(currentUser.uid).set({
+   liveAccount:{
+    currency:"USD",
+    status:"setup_requested",
+    requestedAt:firebase.firestore.FieldValue.serverTimestamp()
+   }
+  },{merge:true});
+  profileData={...(profileData||{}),liveAccount:{currency:"USD",status:"setup_requested"}};
+  updateLiveAccountUI();
+  notify("Your setup request has been saved. Live trading and deposits are not enabled.");
+ }catch(error){
+  button.disabled=false;button.textContent="REQUEST LIVE ACCOUNT SETUP";
+  notify("Could not save your request: "+friendlyError(error),true);
+ }
+}
+
 function logout(){auth.signOut();}
 function goPage(page){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
