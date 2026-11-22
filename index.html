@@ -26,10 +26,26 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.sidebar{display:none}.main{padding:14px 12px 85px}.topbar{padding:0 13px}.logo{font-size:19px}.user-email{display:none}.grid{gap:9px}.panel{padding:14px}.stat-value{font-size:19px}.trade-controls{grid-template-columns:1fr}#chart,#marketChart{height:330px}.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#101a29;border-top:1px solid var(--border);justify-content:space-around;padding:9px 2px;z-index:15}.bottom-nav button{border:0;background:transparent;color:var(--muted);font-size:10px;padding:6px}.bottom-nav button.active{color:var(--green)}}
 .toast{position:fixed;top:82px;right:16px;z-index:50;max-width:min(360px,calc(100vw - 32px));background:#1b293b;border:1px solid var(--green);color:var(--text);padding:14px 16px;border-radius:10px;box-shadow:0 12px 35px #0008;font-size:13px;line-height:1.5;display:none}.toast.show{display:block}.toast.error{border-color:var(--red)}
+
+.close-modal{position:fixed;inset:0;background:#000a;z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
+.close-modal.show{display:flex}.close-modal-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 20px 60px #0009}
+.close-modal-card h2{font-size:19px;margin-bottom:8px}.close-modal-card p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:17px}.modal-actions{display:flex;gap:10px}.modal-actions button{flex:1}
 </style>
 </head>
 <body>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="closeModal" class="close-modal" role="dialog" aria-modal="true" aria-labelledby="closeModalTitle">
+ <div class="close-modal-card">
+  <h2 id="closeModalTitle">Close demo position</h2>
+  <p id="closeModalDescription">Enter your practice closing price to calculate the simulated result.</p>
+  <label for="closePriceInput">Closing price</label>
+  <input id="closePriceInput" type="number" min="0.000001" step="any" placeholder="Enter closing price">
+  <div class="modal-actions">
+   <button class="btn btn-gray" type="button" onclick="cancelCloseModal()">CANCEL</button>
+   <button class="btn btn-green" type="button" onclick="submitCloseModal()">CLOSE POSITION</button>
+  </div>
+ </div>
+</div>
 <div class="auth-screen" id="authScreen"><div class="auth-box">
 <h1>NEXORA FX</h1><p class="subtitle">Your trading practice platform</p>
 <div class="auth-tabs"><button class="btn btn-green" id="loginTab" onclick="showAuth('login')">LOGIN</button><button class="btn btn-gray" id="registerTab" onclick="showAuth('register')">REGISTER</button></div>
@@ -209,15 +225,32 @@ function openTrade(side,source){
  positions.push({id:Date.now(),symbol,side,amount,price,openedAt:new Date().toISOString()});
  balance-=amount;saveDemo();render();notify("Demo "+side+" position opened successfully.");
 }
+let closingPositionId=null;
 function closeTrade(id){
- const index=positions.findIndex(p=>p.id===id);if(index<0)return;
- const p=positions[index],exit=Number(prompt("Enter your practice closing price:"));
- if(!Number.isFinite(exit)||exit<=0){notify("Invalid closing price.",true);return;}
+ const position=positions.find(p=>p.id===id);if(!position)return;
+ closingPositionId=id;
+ document.getElementById("closeModalDescription").textContent=
+  "Enter the practice closing price for "+marketName(position.symbol)+" ("+position.side+"). This is a simulated demo result.";
+ document.getElementById("closePriceInput").value="";
+ document.getElementById("closeModal").classList.add("show");
+ document.getElementById("closePriceInput").focus();
+}
+function cancelCloseModal(){
+ closingPositionId=null;
+ document.getElementById("closeModal").classList.remove("show");
+}
+function submitCloseModal(){
+ const index=positions.findIndex(p=>p.id===closingPositionId);if(index<0){cancelCloseModal();return;}
+ const exit=Number(document.getElementById("closePriceInput").value);
+ if(!Number.isFinite(exit)||exit<=0){notify("Enter a valid closing price.",true);return;}
+ const p=positions[index];
  const change=p.side==="BUY"?(exit-p.price)/p.price:(p.price-exit)/p.price;
  const result=p.amount*change;
  balance+=p.amount+result;
  history.unshift({symbol:p.symbol,side:p.side,amount:p.amount,result,date:new Date().toLocaleString()});
  positions.splice(index,1);saveDemo();render();
+ cancelCloseModal();
+ notify("Demo position closed. Simulated result: "+money(result),result<0);
 }
 function demoDeposit(){
  const n=Number(document.getElementById("depositAmount").value);if(!Number.isFinite(n)||n<=0){notify("Enter a valid amount.",true);return;}
