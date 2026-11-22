@@ -176,9 +176,40 @@ async function forgotPassword(){
  try{await auth.sendPasswordResetEmail(email);document.getElementById("authMessage").textContent="Password reset email sent. Check your inbox.";}
  catch(error){document.getElementById("authMessage").textContent=friendlyError(error);}
 }
+
+// Security timeout: require login again after the site has been away for 5 minutes.
+const NEXORA_AWAY_KEY = "nexora_away_since";
+const NEXORA_AWAY_LIMIT = 5 * 60 * 1000;
+
+function nexoraCheckAwayTime(){
+ const awaySince = Number(sessionStorage.getItem(NEXORA_AWAY_KEY) || 0);
+ if(awaySince && Date.now() - awaySince >= NEXORA_AWAY_LIMIT){
+  sessionStorage.removeItem(NEXORA_AWAY_KEY);
+  sessionStorage.setItem("nexora_timeout_logout", "1");
+  if(auth.currentUser) auth.signOut();
+  return true;
+ }
+ if(awaySince) sessionStorage.removeItem(NEXORA_AWAY_KEY);
+ return false;
+}
+
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="hidden"){
+  sessionStorage.setItem(NEXORA_AWAY_KEY,String(Date.now()));
+ }else{
+  nexoraCheckAwayTime();
+ }
+});
+window.addEventListener("pagehide",()=>{
+ sessionStorage.setItem(NEXORA_AWAY_KEY,String(Date.now()));
+});
+
 auth.onAuthStateChanged(async user=>{
  currentUser=user;
  const screen=document.getElementById("authScreen");
+ if(user && nexoraCheckAwayTime()){
+  return;
+ }
  if(user){
   screen.classList.add("hidden");
   document.getElementById("userEmail").textContent=user.email||"";
@@ -195,10 +226,15 @@ auth.onAuthStateChanged(async user=>{
    }
   }catch(err){console.error("Profile read error:",err);document.getElementById("profileDate").textContent="Could not load profile";}
   updateLiveAccountUI();
-  loadDemo();render();drawChart();
+  await loadDemo();
+  render();drawChart();
  }else{
   screen.classList.remove("hidden");
   document.getElementById("userEmail").textContent="Not signed in";
+  if(sessionStorage.getItem("nexora_timeout_logout")==="1"){
+   sessionStorage.removeItem("nexora_timeout_logout");
+   document.getElementById("authMessage").textContent="You were logged out after 5 minutes away. Please log in again.";
+  }
  }
 });
 
@@ -248,16 +284,49 @@ function goPage(page){
  if(page==="markets")drawChart("marketChart");
 }
 function key(){return currentUser?"nexora_demo_"+currentUser.uid:"nexora_demo_guest";}
-function loadDemo(){
+async function loadDemo(){
+ const localKey=key();
+ let localSaved={};
+ try{localSaved=JSON.parse(localStorage.getItem(localKey)||"{}");}catch(e){localSaved={};}
  try{
-  const saved=JSON.parse(localStorage.getItem(key())||"{}");
+  // Firestore is the primary store so demo trades follow the customer across devices.
+  const snap=await db.collection("users").doc(currentUser.uid).get();
+  const cloudState=snap.exists?snap.data().demoState:null;
+  const saved=cloudState&&typeof cloudState==="object"?cloudState:localSaved;
   balance=Number.isFinite(saved.balance)?saved.balance:10000;
   positions=Array.isArray(saved.positions)?saved.positions:[];
   history=Array.isArray(saved.history)?saved.history:[];
   walletLog=Array.isArray(saved.walletLog)?saved.walletLog:[];
- }catch(e){balance=10000;positions=[];history=[];walletLog=[];}
+  localStorage.setItem(localKey,JSON.stringify({balance,positions,history,walletLog}));
+  // Migrate an existing browser-only demo account to Firestore once.
+  if(!cloudState){
+   await saveDemo();
+  }
+ }catch(e){
+  console.error("Cloud demo data load failed:",e);
+  balance=Number.isFinite(localSaved.balance)?localSaved.balance:10000;
+  positions=Array.isArray(localSaved.positions)?localSaved.positions:[];
+  history=Array.isArray(localSaved.history)?localSaved.history:[];
+  walletLog=Array.isArray(localSaved.walletLog)?localSaved.walletLog:[];
+  notify("Could not sync demo data with the cloud. Changes may remain only on this device.",true);
+ }
 }
-function saveDemo(){if(currentUser)localStorage.setItem(key(),JSON.stringify({balance,positions,history,walletLog}));}
+async function saveDemo(){
+ if(!currentUser)return;
+ const state={balance,positions,history,walletLog};
+ // Keep a local backup, but save the authoritative copy to the signed-in user's Firestore record.
+ localStorage.setItem(key(),JSON.stringify(state));
+ try{
+  await db.collection("users").doc(currentUser.uid).set({
+   demoBalance:balance,
+   demoState:state,
+   demoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+ }catch(error){
+  console.error("Cloud demo save failed:",error);
+  notify("Cloud save failed. Your latest demo changes may only be on this device.",true);
+ }
+}
 function money(n){return "$"+Number(n).toFixed(2);}
 function marketName(s){return s==="FX:EURUSD"?"EUR/USD":s==="FX:GBPUSD"?"GBP/USD":s==="FX:USDJPY"?"USD/JPY":"XAU/USD";}
 function selectMarket(symbol){
