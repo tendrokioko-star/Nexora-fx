@@ -25,9 +25,11 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
 .auth-screen{position:fixed;inset:0;background:#09111e;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}.auth-box{width:100%;max-width:410px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:25px}.auth-box h1{text-align:center;color:var(--green);margin-bottom:8px}.auth-box .subtitle{text-align:center}.auth-tabs{display:flex;gap:8px;margin-bottom:20px}.auth-tabs button{flex:1}.auth-message{font-size:12px;color:#f0c76e;margin:10px 0;line-height:1.5}.hidden{display:none!important}.bottom-nav{display:none}footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.sidebar{display:none}.main{padding:14px 12px 85px}.topbar{padding:0 13px}.logo{font-size:19px}.user-email{display:none}.grid{gap:9px}.panel{padding:14px}.stat-value{font-size:19px}.trade-controls{grid-template-columns:1fr}#chart,#marketChart{height:330px}.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#101a29;border-top:1px solid var(--border);justify-content:space-around;padding:9px 2px;z-index:15}.bottom-nav button{border:0;background:transparent;color:var(--muted);font-size:10px;padding:6px}.bottom-nav button.active{color:var(--green)}}
+.toast{position:fixed;top:82px;right:16px;z-index:50;max-width:min(360px,calc(100vw - 32px));background:#1b293b;border:1px solid var(--green);color:var(--text);padding:14px 16px;border-radius:10px;box-shadow:0 12px 35px #0008;font-size:13px;line-height:1.5;display:none}.toast.show{display:block}.toast.error{border-color:var(--red)}
 </style>
 </head>
 <body>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div class="auth-screen" id="authScreen"><div class="auth-box">
 <h1>NEXORA FX</h1><p class="subtitle">Your trading practice platform</p>
 <div class="auth-tabs"><button class="btn btn-green" id="loginTab" onclick="showAuth('login')">LOGIN</button><button class="btn btn-gray" id="registerTab" onclick="showAuth('register')">REGISTER</button></div>
@@ -118,7 +120,7 @@ document.getElementById("authForm").addEventListener("submit",async e=>{
     accountType:"Demo"
    };
    await db.collection("users").doc(result.user.uid).set(profile);
-   alert("Your NEXORA FX account has been created and your profile saved.");
+   notify("Your NEXORA FX account has been created and your profile saved.");
   }else{
    await auth.signInWithEmailAndPassword(email,password);
   }
@@ -197,20 +199,20 @@ function drawChart(target="chart"){
  new TradingView.widget({autosize:true,symbol:market,interval:"60",timezone:"Etc/UTC",theme:"dark",style:"1",locale:"en",enable_publishing:false,allow_symbol_change:true,container_id:target});
 }
 function openTrade(side,source){
- if(!currentUser){alert("Please log in first.");return;}
+ if(!currentUser){notify("Please log in first.",true);return;}
  const prefix=source==="quick"?"quick":"trade";
  const symbol=document.getElementById(prefix==="quick"?"quickSymbol":"tradeSymbol").value;
  const amount=Number(document.getElementById(prefix==="quick"?"quickAmount":"tradeAmount").value);
  const price=Number(document.getElementById(prefix==="quick"?"quickPrice":"tradePrice").value);
- if(!Number.isFinite(amount)||amount<=0||amount>balance){alert("Enter a valid amount within your available demo balance.");return;}
- if(!Number.isFinite(price)||price<=0){alert("Enter a valid practice entry price.");return;}
+ if(!Number.isFinite(amount)||amount<=0||amount>balance){notify("Enter a valid amount within your available demo balance.",true);return;}
+ if(!Number.isFinite(price)||price<=0){notify("Enter a valid practice entry price.",true);return;}
  positions.push({id:Date.now(),symbol,side,amount,price,openedAt:new Date().toISOString()});
- balance-=amount;saveDemo();render();alert("Demo "+side+" position opened.");
+ balance-=amount;saveDemo();render();notify("Demo "+side+" position opened successfully.");
 }
 function closeTrade(id){
  const index=positions.findIndex(p=>p.id===id);if(index<0)return;
  const p=positions[index],exit=Number(prompt("Enter your practice closing price:"));
- if(!Number.isFinite(exit)||exit<=0){alert("Invalid closing price.");return;}
+ if(!Number.isFinite(exit)||exit<=0){notify("Invalid closing price.",true);return;}
  const change=p.side==="BUY"?(exit-p.price)/p.price:(p.price-exit)/p.price;
  const result=p.amount*change;
  balance+=p.amount+result;
@@ -218,11 +220,11 @@ function closeTrade(id){
  positions.splice(index,1);saveDemo();render();
 }
 function demoDeposit(){
- const n=Number(document.getElementById("depositAmount").value);if(!Number.isFinite(n)||n<=0){alert("Enter a valid amount.");return;}
+ const n=Number(document.getElementById("depositAmount").value);if(!Number.isFinite(n)||n<=0){notify("Enter a valid amount.",true);return;}
  balance+=n;walletLog.unshift({type:"Demo funds added",amount:n,date:new Date().toLocaleString()});saveDemo();render();document.getElementById("depositAmount").value="";
 }
 function demoWithdraw(){
- const n=Number(document.getElementById("withdrawAmount").value);if(!Number.isFinite(n)||n<=0||n>balance){alert("Enter a valid amount within your demo balance.");return;}
+ const n=Number(document.getElementById("withdrawAmount").value);if(!Number.isFinite(n)||n<=0||n>balance){notify("Enter a valid amount within your demo balance.",true);return;}
  balance-=n;walletLog.unshift({type:"Demo funds withdrawn",amount:n,date:new Date().toLocaleString()});saveDemo();render();document.getElementById("withdrawAmount").value="";
 }
 function resetDemo(){
@@ -241,6 +243,16 @@ function render(){
  document.getElementById("positionsList").innerHTML=positions.length?positions.map(p=>`<div class="item"><strong>${marketName(p.symbol)} · ${p.side}</strong><p>Amount: ${money(p.amount)} · Entry: ${p.price}</p><button class="btn btn-red" onclick="closeTrade(${p.id})">CLOSE POSITION</button></div>`).join(""):"No open positions.";
  document.getElementById("historyList").innerHTML=history.length?history.map(h=>`<tr><td>${marketName(h.symbol)}</td><td>${h.side}</td><td>${money(h.amount)}</td><td class="${h.result>=0?"green":"red"}">${money(h.result)}</td><td>${h.date}</td></tr>`).join(""):'<tr><td colspan="5">No trade history yet.</td></tr>';
  document.getElementById("walletHistory").innerHTML=walletLog.length?walletLog.map(w=>`<div class="item"><strong>${w.type}: ${money(w.amount)}</strong><p>${w.date}</p></div>`).join(""):"No wallet activity yet.";
+}
+let toastTimer=null;
+function notify(message,isError=false){
+ const box=document.getElementById("toast");
+ if(!box)return;
+ box.textContent=message;
+ box.classList.toggle("error",Boolean(isError));
+ box.classList.add("show");
+ if(toastTimer)clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>box.classList.remove("show"),3500);
 }
 showAuth("login");
 </script>
