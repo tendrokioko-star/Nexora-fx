@@ -258,21 +258,53 @@ async function requestLiveAccountSetup(){
   notify("Your live-account setup request has already been saved.");return;
  }
  const button=document.getElementById("liveRequestButton");
+ const originalText="REQUEST LIVE ACCOUNT SETUP";
  button.disabled=true;button.textContent="SAVING REQUEST...";
+ let timeoutId;
  try{
-  await db.collection("users").doc(currentUser.uid).set({
+  const savePromise=db.collection("users").doc(currentUser.uid).set({
    liveAccount:{
     currency:"USD",
     status:"setup_requested",
     requestedAt:firebase.firestore.FieldValue.serverTimestamp()
    }
   },{merge:true});
-  profileData={...(profileData||{}),liveAccount:{currency:"USD",status:"setup_requested"}};
+  // Do not leave the button spinning forever if Firestore cannot respond.
+  await Promise.race([
+   savePromise,
+   new Promise((_,reject)=>{
+    timeoutId=setTimeout(()=>reject(new Error("NEXORA_SAVE_TIMEOUT")),15000);
+   })
+  ]);
+  clearTimeout(timeoutId);
+  // Confirm the saved status by reading the profile back from Firestore.
+  const verify=await Promise.race([
+   db.collection("users").doc(currentUser.uid).get(),
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error("NEXORA_VERIFY_TIMEOUT")),10000))
+  ]);
+  const saved=verify.exists?verify.data().liveAccount:null;
+  if(!saved||saved.status!=="setup_requested"){
+   throw new Error("NEXORA_VERIFY_FAILED");
+  }
+  profileData={...(profileData||{}),liveAccount:saved};
   updateLiveAccountUI();
-  notify("Your setup request has been saved. Live trading and deposits are not enabled.");
+  notify("Your live-account setup request is saved. This does not activate real-money trading.");
  }catch(error){
-  button.disabled=false;button.textContent="REQUEST LIVE ACCOUNT SETUP";
-  notify("Could not save your request: "+friendlyError(error),true);
+  clearTimeout(timeoutId);
+  button.disabled=false;
+  button.textContent=originalText;
+  let message;
+  if(error.message==="NEXORA_SAVE_TIMEOUT"||error.message==="NEXORA_VERIFY_TIMEOUT"){
+   message="Firebase did not respond in time. Check your internet connection and Firestore status, then try again.";
+  }else if(error.message==="NEXORA_VERIFY_FAILED"){
+   message="Firebase did not confirm the request. Please try again.";
+  }else if(error.code==="permission-denied"){
+   message="Firebase blocked this save. The Firestore rules need to allow the signed-in user to update their own liveAccount field.";
+  }else{
+   message="Could not save the request: "+(error.message||error.code||"Unknown error");
+  }
+  console.error("Live-account request error:",error);
+  notify(message,true);
  }
 }
 
