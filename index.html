@@ -89,6 +89,7 @@ input,select{width:100%;padding:12px;border-radius:8px;border:1px solid var(--bo
   <div class="panel"><div class="stat-label">Account type</div><div class="stat-value">Live</div></div>
  </div>
  <div class="live-info" id="liveStatusDetail"><strong>Not activated.</strong> You can request setup of your live-account profile. This request does not open a brokerage account or enable real-money trading.</div>
+ <div class="live-info"><strong>Provisional account reference:</strong><br><span class="account-number" id="liveAccountReference">Not assigned yet</span><p style="margin-top:8px">This is an internal NEXORA FX reference only, not an active brokerage account number.</p></div>
  <button class="btn btn-blue btn-full" id="liveRequestButton" type="button" onclick="requestLiveAccountSetup()">REQUEST LIVE ACCOUNT SETUP</button>
 </div>
 <div class="panel">
@@ -225,6 +226,7 @@ auth.onAuthStateChanged(async user=>{
     document.getElementById("profileDate").textContent="Profile record not found";
    }
   }catch(err){console.error("Profile read error:",err);document.getElementById("profileDate").textContent="Could not load profile";}
+  try{await ensureLiveAccountReference();}catch(refError){console.error("Account reference setup:",refError);}
   updateLiveAccountUI();
   await loadDemo();
   render();drawChart();
@@ -244,13 +246,39 @@ function updateLiveAccountUI(){
  const status=document.getElementById("liveStatus");
  const detail=document.getElementById("liveStatusDetail");
  const button=document.getElementById("liveRequestButton");
+ const reference=document.getElementById("liveAccountReference");
  if(!status||!detail||!button)return;
  status.textContent=requested?"SETUP REQUESTED":"NOT ACTIVE";
  detail.innerHTML=requested
   ?"<strong>Setup request saved.</strong> Your request is recorded in your account profile. This is not approval or activation, and real deposits and trading remain unavailable."
   :"<strong>Not activated.</strong> You can request setup of your live-account profile. This request does not open a brokerage account or enable real-money trading.";
+ if(reference)reference.textContent=requested&&live.accountReference?live.accountReference:(requested?"Assigning reference...":"Not assigned yet");
  button.textContent=requested?"REQUEST SAVED":"REQUEST LIVE ACCOUNT SETUP";
  button.disabled=requested;
+}
+
+function makeProvisionalAccountReference(){
+ const values=new Uint32Array(3);
+ crypto.getRandomValues(values);
+ return "NXR-"+Array.from(values).map(v=>v.toString(36).toUpperCase().padStart(7,"0")).join("").slice(0,12);
+}
+
+async function ensureLiveAccountReference(){
+ if(!currentUser||!profileData||!profileData.liveAccount||profileData.liveAccount.status!=="setup_requested")return null;
+ if(profileData.liveAccount.accountReference)return profileData.liveAccount.accountReference;
+ const userRef=db.collection("users").doc(currentUser.uid);
+ const accountReference=await db.runTransaction(async transaction=>{
+  const snap=await transaction.get(userRef);
+  if(!snap.exists)throw new Error("USER_PROFILE_NOT_FOUND");
+  const data=snap.data()||{};
+  const live=data.liveAccount||{};
+  if(live.accountReference)return live.accountReference;
+  const generated=makeProvisionalAccountReference();
+  transaction.set(userRef,{liveAccount:{...live,accountReference:generated}},{merge:true});
+  return generated;
+ });
+ profileData={...profileData,liveAccount:{...profileData.liveAccount,accountReference}};
+ return accountReference;
 }
 async function requestLiveAccountSetup(){
  if(!currentUser){notify("Please log in first.",true);return;}
@@ -287,8 +315,9 @@ async function requestLiveAccountSetup(){
    throw new Error("NEXORA_VERIFY_FAILED");
   }
   profileData={...(profileData||{}),liveAccount:saved};
+  await ensureLiveAccountReference();
   updateLiveAccountUI();
-  notify("Your live-account setup request is saved. This does not activate real-money trading.");
+  notify("Your live-account setup request and provisional reference are saved. This does not activate real-money trading.");
  }catch(error){
   clearTimeout(timeoutId);
   button.disabled=false;
